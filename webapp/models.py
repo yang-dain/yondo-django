@@ -1,0 +1,27 @@
+from django.db import models
+from django.contrib.auth.models import User
+
+# Create your models here.
+
+class Custom_user(models.Model):
+    key = models.AutoField(primary_key=True)
+    id = models.CharField(unique=True , max_length=10, blank=False, null=False)
+    pw = models.CharField(max_length=20, blank=False, null=False)
+    user_email = models.EmailField(max_length=128, blank=False, null=False)
+    pw_qust = models.IntegerField(default=0)
+    pw_ans = models.CharField(max_length=10, blank=False, null=False)
+    name = models.CharField(max_length=10, blank=False, null=False)
+
+class Event(models.Model):
+    user = models.ForeignKey(Custom_user, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, blank=False, null=False)
+    start_time = models.DateField(blank=False, null=False)
+    end_time = models.DateField(blank=True, null=True)
+    memo = models.TextField(blank=True, null=True)
+
+class School_Event(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, blank=False, null=False)
+    start_date = models.DateField(blank=False, null=False)
+    end_date =  models.DateField(blank=True, null=True)
