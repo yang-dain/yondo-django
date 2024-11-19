@@ -35,9 +35,9 @@ def update_schedule(input_file_path):
                 start_date = datetime.strptime(f"{current_year}-{current_month}-{start_day}", "%Y-%m-%d")
                 end_date = datetime.strptime(f"{current_year}-{current_month}-{end_day}", "%Y-%m-%d")
             else:  # 단일 날짜
-                start_day = re.search(r'\d+', line).group()
-                start_date = datetime.strptime(f"{current_year}-{current_month}-{start_day}", "%Y-%m-%d")
-                end_date = None
+                end_day = re.search(r'\d+', line).group()
+                end_date = datetime.strptime(f"{current_year}-{current_month}-{end_day}", "%Y-%m-%d")
+                start_date = None
 
             event_name = lines[i + 1].strip()
             events.append(School_Event(name=event_name, start_date=start_date, end_date=end_date))
