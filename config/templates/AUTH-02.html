@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연DO 회원가입</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f6f1; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            position: relative;
+        }
+
+        .home-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .home-box img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            margin-bottom: 5px;
+        }
+
+        .signup-container {
+            background-color: #ffffff; 
+            width: 400px;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .title {
+            background-color: #8c8c8c; 
+            color: white;
+            padding: 10px;
+            font-size: 1.2em;
+            text-align: left;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .signup-container input[type="text"],
+        .signup-container input[type="password"],
+        .signup-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .signup-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #2e5743;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            color: white;
+            cursor: pointer;
+        }
+
+        .signup-container button:hover {
+            background-color: #2e5743;
+        }
+
+        .extra-links {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .extra-links a {
+            color: #666;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+        
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="home-box">
+        <img src="yondo.image/yondo.png">
+    </div>
+
+    <div class="signup-container">
+        <div class="title">회원가입</div>
+        <form>
+            <input type="text" placeholder="이름" required>
+            <input type="text" placeholder="아이디" required>
+            <input type="password" placeholder="비밀번호" required>
+            <input type="password" placeholder="비밀번호 확인" required>
+            <input type="text" placeholder="이메일" required>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" placeholder="비밀번호 질문" style="flex: 1;" required>
+                <select style="flex: 1;">
+                    <option value="" disabled selected>선택항목 중 선택</option>
+                    <option value="question1">질문 1</option>
+                    <option value="question2">질문 2</option>
+                    <option value="question3">질문 3</option>
+                </select>
+            </div>
+            <input type="text" placeholder="답변" required>
+            <button type="submit">회원가입</button>
+        </form>
+    </div>
+</body>
+</html>
