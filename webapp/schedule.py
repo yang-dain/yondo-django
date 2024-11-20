@@ -31,9 +31,25 @@ def update_schedule(input_file_path):
             if "~" in line:  # 날짜 범위
                 date_part = line.split("~")
                 start_day = re.search(r'\d+', date_part[0]).group()
-                end_day = re.search(r'\d+', date_part[1]).group()
+                end_day_part = date_part[1].strip()
+
+                # 요일 정보 제거
+                end_day_part = re.sub(r'\(.*?\)', '', end_day_part).strip()
+
+                # 종료 날짜에 달 정보가 포함되어 있는지 확인
+                if "." in end_day_part:
+                    # 종료 날짜에 달 정보가 있으면 분리
+                    end_month, end_day = end_day_part.split(".")
+                    end_month = f"{int(end_month):02}"  # 월 정보 포맷팅
+                else:
+                    # 달 정보가 없으면 현재 달 사용
+                    end_month = current_month
+                    end_day = re.search(r'\d+', end_day_part).group()
+
+                # 시작 및 종료 날짜 계산
                 start_date = datetime.strptime(f"{current_year}-{current_month}-{start_day}", "%Y-%m-%d")
-                end_date = datetime.strptime(f"{current_year}-{current_month}-{end_day}", "%Y-%m-%d")
+                end_date = datetime.strptime(f"{current_year}-{end_month}-{end_day}", "%Y-%m-%d")
+
             else:  # 단일 날짜
                 end_day = re.search(r'\d+', line).group()
                 end_date = datetime.strptime(f"{current_year}-{current_month}-{end_day}", "%Y-%m-%d")
