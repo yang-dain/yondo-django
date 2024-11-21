@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>비밀번호 찾기</title>
+    <title>연DO 비밀번호 찾기</title>
     <style>
         * {
             box-sizing: border-box;
@@ -47,6 +47,16 @@
             font-size: 1em;
         }
 
+        .find-container select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+            background-color: #fff;
+        }
+
         .find-container button {
             width: 100%;
             padding: 12px;
@@ -79,6 +89,7 @@
             object-fit: cover;
             border-radius: 5px;
         }
+
     </style>
 </head>
 <body>
@@ -90,8 +101,13 @@
         <form>
             <input type="text" placeholder="이름" required>
             <input type="text" placeholder="아이디" required>
-            <input type="text" placeholder="비밀번호 질문" required>
-            <input type="text" placeholder="비밀번호 답" required>
+            <select required>
+                <option value="" disabled selected>선택항목 중 선택</option>
+                <option value="question1">질문 1</option>
+                <option value="question2">질문 2</option>
+                <option value="question3">질문 3</option>
+            </select>
+            <input type="text" placeholder="답변" required>
             <button type="submit">확인</button>
         </form>
     </div>
