@@ -178,7 +178,7 @@
 <body>
     <div class="header-bar">
         <div class="logo-container">
-            <a href="home.html"><img src="../static/logo-light.png" alt="홈 화면 로고"></a>
+            <a href="home.html"><img src="../static/logo-dark.png" alt="홈 화면 로고"></a>
         </div>
         <div class="button-container">
             <a href="#" class="button logout">로그아웃</a>
@@ -203,14 +203,7 @@
     </div>
     <script>
         let currentDate = new Date();
-        const events = [
-            { date: "2024-11-04", content: "일정1" },
-            { date: "2024-11-09", content: "일정2" },
-            { date: "2024-11-14", content: "일정3" },
-            { date: "2024-11-20", content: "일정4" },
-            { date: "2024-11-24", content: "일정5" }
-        ];
-
+        const schoolEvents = JSON.parse('{{ school_events|safe }}');
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -245,37 +238,76 @@
             updateScheduleList();
         }
 
-        function createCell(year, month, date) {
-            const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-            const formattedDate = fullDate.replace(/-/g, '/'); // 날짜를 YYYY/MM/DD 형식으로 변환
-            const eventList = events
-                .filter(event => event.date === fullDate)
-                .map(event => `<div class="event">${event.content}</div>`)
-                .join('');
-            return `<td>${date}${eventList}</td>`;
-        }
+function createCell(year, month, date) {
+    const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
 
-        function updateScheduleList() {
-            const scheduleList = document.getElementById('schedule-list');
-            scheduleList.innerHTML = `
-                <h3>이번 달 일정</h3>
-                ${events
-                    .filter(event => {
-                        const eventDate = new Date(event.date);
-                        return eventDate.getFullYear() === currentDate.getFullYear() &&
-                            eventDate.getMonth() === currentDate.getMonth();
-                    })
-                    .map(event => {
-                        const formattedDate = event.date.replace(/-/g, '/'); // 날짜를 YYYY/MM/DD 형식으로 변환
-                        return `
-                            <div class="schedule-item">
-                                <strong>${event.content}</strong><br>${formattedDate}
-                            </div>
-                        `;
-                    })
-                    .join('')}
-            `;
+    const eventsOnThisDay = schoolEvents.filter(event => {
+        if (!event.start_date && !event.end_date) return false; // start_date, end_date 모두 없으면 제외
+
+        const startDate = event.start_date ? new Date(event.start_date) : null;
+        const endDate = event.end_date ? new Date(event.end_date) : null;
+        const currentDate = new Date(fullDate);
+
+        if (startDate && endDate) {
+            return currentDate >= startDate && currentDate <= endDate;
+        } else if (endDate) {
+            return currentDate.toDateString() === endDate.toDateString();
         }
+        return false;
+    });
+
+    const eventList = eventsOnThisDay
+        .map(event => `<div class="event">${event.name}</div>`)
+        .join('');
+
+    return `<td>${date}${eventList}</td>`;
+}
+
+
+
+
+function updateScheduleList() {
+    const scheduleList = document.getElementById('schedule-list');
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+
+    scheduleList.innerHTML = `
+        <h3>이번 달 일정</h3>
+        ${schoolEvents
+            .filter(event => {
+                const startDate = event.start_date ? new Date(event.start_date) : null;
+                const endDate = event.end_date ? new Date(event.end_date) : null;
+
+                // 이번 달에 해당하는 일정만 필터링
+                return (
+                    (startDate && startDate.getFullYear() === year && startDate.getMonth() === month) ||
+                    (endDate && endDate.getFullYear() === year && endDate.getMonth() === month)
+                );
+            })
+            .sort((a, b) => {
+                const endA = a.end_date ? new Date(a.end_date) : new Date();
+                const endB = b.end_date ? new Date(b.end_date) : new Date();
+                return endA - endB; // end_date를 기준으로 오름차순 정렬
+            })
+            .map(event => {
+                // 단일 일정인지 확인
+                const dateRange = event.start_date
+                    ? `${event.start_date} ~ ${event.end_date}` // 연속 일정
+                    : `${event.end_date}`; // 단일 일정
+
+                return `
+                    <div class="schedule-item">
+                        <strong>${event.name}</strong><br>
+                        ${dateRange}
+                    </div>
+                `;
+            })
+            .join('')}
+    `;
+}
+
+
+
 
         document.querySelector('.prev-month').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
