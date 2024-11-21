@@ -1,25 +1,12 @@
 /* Reset CSS */
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #2e5743; /* Background color */
-    margin: 0;
-}
+
 
 /* Logo Container */
 .logo-container {
-    position: absolute;
-    top: 20px;
-    left: 20px;
     background-color: #f6f3ef;
     border: 2px solid #f6f3ef;
     border-bottom-right-radius: 8px;
@@ -32,24 +19,13 @@ body {
 }
 
 /* Main Container */
-.container {
-    background-color: #f6f3ef;
-    width: 100%;
-    max-width: 600px;
-    padding: 30px;
-    text-align: center;
-    border-radius: 10px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    margin: 20px;
-}
+
 
 /* Header */
 .header {
     background-color: #2e5743;
     color: #f6f3ef;
     padding: 20px;
-    font-size: 26px;
-    font-weight: 600;
     border-radius: 8px;
 }
 
@@ -77,14 +53,7 @@ body {
 
 /* Button */
 .button {
-    background-color: #d5e9f2;
-    color: #333;
-    padding: 12px;
     width: 100%;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
     margin-top: 30px;
     transition: background-color 0.3s ease;
 }
@@ -95,19 +64,13 @@ body {
 
 /* Logout Button */
 .logout {
-    position: fixed;
-    top: 20px;
-    right: 20px;
     width: 120px;
     height: 50px;
-    background-color: #c9c9c9;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 14px;
-    text-decoration: none;
     color: #000;
-    border-radius: 6px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
