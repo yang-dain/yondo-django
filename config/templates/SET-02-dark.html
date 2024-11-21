@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>알림 설정 페이지</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #373737;
+            color: #f6f3ef;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .header-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .logo img {
+            height: auto;
+            width: 70px;
+        }
+
+        .logo-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 120px;
+            height: 120px;
+            padding-top: 0;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-container h1 {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+
+        .logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #f6f3ef;
+            background-color: #398428;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout:hover {
+            background-color: #2e6e22;
+        }
+
+        .divider {
+            width: 100%;
+            height: 2px;
+            background-color: #398428;
+            margin-top: 60px;
+            margin-bottom: 60px;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            background-color: #474747;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        th {
+            background-color: #f0f0f083;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #398428;
+            color: #f6f3ef;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #2e6e22;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 헤더 -->
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="home.html" class="logo">
+                <img src="darkmode.png" alt="로고">
+            </a>
+        </div>
+        <a href="#" class="logout">로그아웃</a>
+    </div>
+
+    <!-- 구분선 -->
+    <div class="divider"></div>
+
+    <!-- 알림 설정 컨테이너 -->
+    <div class="container">
+        <div class="header">알림 설정</div>
+        <table>
+            <tr>
+                <th>알림 종류</th>
+                <th>설정</th>
+            </tr>
+            <tr>
+                <td>대학 행사/학사 일정</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+            <tr>
+                <td>개인 일정</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+        </table>
+        <button style="margin-top: 20px;" onclick="saveSettings()">확인</button>
+    </div>
+
+    <script>
+        // 알림 켜기/끄기 토글
+        function toggleAlert(button) {
+            if (button.innerText === "켜기") {
+                button.innerText = "끄기";
+            } else {
+                button.innerText = "켜기";
+            }
+        }
+
+        // 설정 저장
+        function saveSettings() {
+            alert("설정이 저장되었습니다.");
+        }
+    </script>
+
+</body>
+</html>
