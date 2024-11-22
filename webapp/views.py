@@ -44,3 +44,45 @@ def main(request):
     except Exception as e:
         print(f"Error occurred: {e}")
         return render(request, 'error.html', {'error_message': str(e)})
+
+def login(request):
+    return render(request, 'AUTH-01-light.html')
+
+def signup(request):
+    # AUTH-02-light.html에서 입력값 받아옴
+    if request.method == "POST":
+        name = request.POST.get('name')
+        user_id = request.POST.get('id')
+        pw = request.POST.get('pw')
+        pw_confirm = request.POST.get('pw_confirm')
+        user_email = request.POST.get('email')
+        pw_qust = request.POST.get('pw_qust') or 0
+        pw_ans = request.POST.get('pw_ans')
+
+        #pw 확인
+        if pw != pw_confirm:
+            messages.error(request, '비밀번호가 일치하지 않습니다.')
+            return render(request, 'AUTH-02-light.html')
+
+        #id 중복 확인
+        if Custom_user.objects.filter(id=user_id).exists():
+            messages.error(request, '이미 존재하는 아이디입니다.')
+            return render(request, 'AUTH-02-light.html')
+
+        # custom_user 테이블에 저장
+        try:
+            Custom_user.objects.create(
+                name=name,
+                id=user_id,
+                pw=pw,
+                user_email=user_email,
+                pw_qust=int(pw_qust),
+                pw_ans=pw_ans
+            )
+            messages.success(request, '회원가입이 완료되었습니다.')
+            return redirect('main')
+        except Exception as e:
+            messages.error(request, f'회원가입 중 오류가 발생했습니다: {e}')
+            return render(request, 'AUTH-02-light.html')
+
+    return render(request, 'AUTH-02-light.html')
