@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>비밀번호 변경</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f6f3ef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .change-container {
+            background-color: #ffffff;
+            width: 400px;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .title {
+            background-color: #8c8c8c;
+            color: white;
+            padding: 10px;
+            font-size: 1.2em;
+            text-align: left;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .change-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .change-container button {
+            width: 100%;
+            padding: 12px;
+            background-color:#254a36;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            color: #ffffff;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .change-container button:hover {
+            background-color: #91bde1;
+        }
+
+        .home-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .home-box img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="home-box">
+        <img src="yondo.image/yondo.png" alt="연DO 로고">
+    </div>
+    <div class="change-container">
+        <div class="title">비밀번호 변경</div>
+        <form>
+            <input type="password" placeholder="현재 비밀번호" required>
+            <input type="password" placeholder="새 비밀번호" required>
+            <input type="password" placeholder="새 비밀번호 확인" required>
+            <button type="submit">비밀번호 변경</button>
+        </form>
+    </div>
+</body>
+</html>
