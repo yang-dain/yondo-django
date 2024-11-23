@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>알림 설정 페이지</title>
+    <title>UI 설정</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,7 +14,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 80vh;
+            min-height: 90vh;
         }
 
         .header-bar {
@@ -148,11 +148,15 @@
                 <th>설정</th>
             </tr>
             <tr>
-                <td>대학 행사/학사 일정</td>
+                <td>학사 일정</td>
                 <td><button onclick="toggleAlert(this)">켜기</button></td>
             </tr>
             <tr>
                 <td>개인 일정</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+            <tr>
+                <td>다크모드</td>
                 <td><button onclick="toggleAlert(this)">켜기</button></td>
             </tr>
         </table>
