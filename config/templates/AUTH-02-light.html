@@ -113,7 +113,7 @@
             <input type="text" name="id" placeholder="아이디" required>
             <input type="password" name="pw" placeholder="비밀번호" required>
             <input type="password" name="pw_confirm" placeholder="비밀번호 확인" required>
-            <input type="text" name="email" placeholder="이메일" required>
+            <input type="email" name="email" placeholder="이메일" required>
             <div style="display: flex; gap: 10px;">
                 <select name="pw_qust" style="flex: 1;" required>
                     <option value="" disabled selected>선택항목 중 선택</option>
@@ -126,5 +126,12 @@
             <button type="submit">회원가입</button>
         </form>
     </div>
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>

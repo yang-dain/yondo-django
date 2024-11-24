@@ -12,5 +12,8 @@ urlpatterns = [
     path('event/<int:user_id>/', views.event_list, name='event_list,'), #일정 목록
     path('event/<int:user_id>/create/', views.event_create, name='event_create'), #일정 추가
     path('event/<int:user_id>/manage', views.event_manage, name='event_manage'), #일정 변경/삭제
+    path('find_id/', views.find_id, name='find_id'), #아이디 찾기
+    path('find_pw/', views.find_pw, name='find_pw'), #비밀번호 찾기
+    path('reset_pw/<str:userid>', views.reset_pw, name='reset_pw'), #비밀번호 변경
 ]
 
