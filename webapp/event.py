@@ -5,8 +5,10 @@ from datetime import date, timedelta
 from django.db.models import Q
 
 
-def event_list(request, user_id):
-    user = get_object_or_404(Custom_user, pk=user_id)
+def event_list(request):
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('webapp:login')
 
     year = request.GET.get('year')
     month = request.GET.get('month')
@@ -38,19 +40,16 @@ def event_list(request, user_id):
     if current_date.month == today.month and current_date.year == today.year:
         # 현재 달의 일정
         current_events = Event.objects.filter(
-            user=user,
             start_date__lte=last_day,  # 시작일은 이번 달 내에 있어야 함
             end_date__gte=today  # 종료일은 오늘 이후여야 함
         ).exclude(is_completed=True)
 
         ended_events = Event.objects.filter(
-            Q(end_date__lt=today) | Q(is_completed=True),
-            user=user
+            Q(end_date__lt=today) | Q(is_completed=True)
         ).exclude(end_date__lte=prev_last_day)
     elif current_date < today.replace(day=1):
         # 이전 달의 일정
         current_events = Event.objects.filter(
-            user=user,
             start_date__gte=prev_first_day,
             start_date__lte=prev_last_day,
             end_date__gte=today,  # 종료일은 오늘 이후여야 함
@@ -60,7 +59,6 @@ def event_list(request, user_id):
     else:
         # 다음 달의 일정
         current_events = Event.objects.filter(
-            user=user,
             end_date__gte=next_first_day,
             end_date__lte=next_last_day,
             is_completed=False
@@ -70,7 +68,6 @@ def event_list(request, user_id):
     context = {
         'current_events': current_events,
         'ended_events': ended_events,
-        'user': user,
         'current_year': current_date.year,
         'current_month': current_date.month,
         'previous_year': previous_month.year,
@@ -83,7 +80,7 @@ def event_list(request, user_id):
 
 
 # 일정 추가
-def event_create(request, user_id):
+def event_create(request):
     user = get_object_or_404(Custom_user, pk=user_id)
     if request.method == "POST":
         name = request.POST['name']
