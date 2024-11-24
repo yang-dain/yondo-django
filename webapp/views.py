@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
 from .models import School_Event
 from .models import Custom_user
 import json
@@ -48,6 +49,28 @@ def main(request):
         return render(request, 'error.html', {'error_message': str(e)})
 
 def login(request):
+    if request.method == "POST":
+        # 폼에서 받은 아이디와 비밀번호
+        userid = request.POST.get('userid')
+        password = request.POST.get('password')
+
+        try:
+            # 아이디로 사용자 찾기
+            user = Custom_user.objects.get(id=userid)
+
+            # 비밀번호가 일치하는지 확인 (평문 비교)
+            if user.pw == password:  # 평문 비밀번호 비교
+                # 비밀번호 일치 -> 로그인 처리
+                request.session['user_id'] = user.id  # 세션에 사용자 ID 저장
+                messages.success(request, '로그인 성공!')
+                return redirect('webapp:main')  # 로그인 후 메인 페이지로 리디렉션
+            else:
+                # 비밀번호 불일치
+                messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
+        except Custom_user.DoesNotExist:
+            # 아이디가 존재하지 않는 경우
+            messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
+
     return render(request, 'AUTH-01-light.html')
 
 def signup(request):
@@ -82,7 +105,7 @@ def signup(request):
                 pw_ans=pw_ans
             )
             messages.success(request, '회원가입이 완료되었습니다.')
-            return redirect('main')
+            return redirect('webapp:main')
         except Exception as e:
             messages.error(request, f'회원가입 중 오류가 발생했습니다: {e}')
             return render(request, 'AUTH-02-light.html')
