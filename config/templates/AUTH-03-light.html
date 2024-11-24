@@ -84,15 +84,24 @@
 </head>
 <body>
     <div class="home-box">
-        <img src="yondo.image/yondo.png" alt="연DO">
+        <img src="/static/logo-light.png" alt="연DO">
     </div>
     <div class="find-container">
         <div class="title">아이디 찾기</div>
-        <form>
-            <input type="text" placeholder="이름" required>
-            <input type="email" placeholder="이메일" required>
+            <form method="POST" action="/webapp/find_id/">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="이름" required>
+            <input type="email" name="email" placeholder="이메일" required>
             <button type="submit">확인</button>
         </form>
     </div>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>
