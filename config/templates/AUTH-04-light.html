@@ -98,18 +98,26 @@
     </div>
     <div class="find-container">
         <div class="title">비밀번호 찾기</div>
-        <form>
-            <input type="text" placeholder="이름" required>
-            <input type="text" placeholder="아이디" required>
-            <select required>
+        <form method="POST" action="/webapp/find_pw/">
+            {% csrf_token %}
+            <input type="text" name="userid" placeholder="아이디" required>
+            <select name="pw_qust" required>
                 <option value="" disabled selected>선택항목 중 선택</option>
-                <option value="question1">질문 1</option>
-                <option value="question2">질문 2</option>
-                <option value="question3">질문 3</option>
+                <option value="1">질문 1</option>
+                <option value="2">질문 2</option>
+                <option value="3">질문 3</option>
             </select>
-            <input type="text" placeholder="답변" required>
+            <input type="text" name="pw_ans" placeholder="답변" required>
             <button type="submit">확인</button>
         </form>
     </div>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
+    </script>
 </body>
 </html>
