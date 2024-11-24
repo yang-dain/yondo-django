@@ -8,5 +8,8 @@ urlpatterns = [
     path('main/', views.main, name='main'), #메인화면
     path('login/', views.login, name='login'), #로그인
     path('signup/', views.signup, name='signup'), #회원가입
+    path('find_id/', views.find_id, name='find_id'), #아이디 찾기
+    path('find_pw/', views.find_pw, name='find_pw'), #비밀번호 찾기
+    path('reset_pw/<str:userid>', views.reset_pw, name='reset_pw'), #비밀번호 변경
 ]
 
