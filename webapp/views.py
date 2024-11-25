@@ -4,8 +4,8 @@ from django.contrib.auth import authenticate, login, logout
 from .models import School_Event
 from .models import Custom_user
 import json
-from .event import event_list, event_manage, event_create
-
+from .event import event_list, event_manage, event_create, school_event_list
+from django.shortcuts import render, get_object_or_404, redirect
 
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
@@ -28,12 +28,8 @@ def main(request):
         for event in school_events:
             start_date = DateFormat(event.start_date).format("Y-m-d") if event.start_date else None
             end_date = DateFormat(event.end_date).format("Y-m-d") if event.end_date else None
+            date_range = f"{start_date} ~ {end_date}"
 
-            # 일정 표시 형식 결정
-            if start_date:  # 연속 일정 (start_date와 end_date 둘 다 있을 경우)
-                date_range = f"{start_date} ~ {end_date}"
-            else:  # 단일 일정 (start_date가 없을 경우)
-                date_range = end_date
 
             # 데이터 추가
             event_data.append({
@@ -189,3 +185,22 @@ def reset_pw(request, userid):
             return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 리디렉션
 
     return render(request, 'AUTH-05-light.html')
+
+
+def todo_view(request): #일정 목록
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('/webapp/login/')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+
+    event_data = school_event_list()
+    events_data = event_list(custom_user)
+
+
+    return render(request, 'TODO-01-light.html', {
+        'school_events': json.dumps(event_data['school_events']), # 학사일정
+        'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
+        'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
+    })
