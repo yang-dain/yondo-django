@@ -223,9 +223,40 @@
             </div>
         </div>
     </div>
+
+    <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+    <script id="currentEvents" type="application/json">
+        {{ current_events|safe }}
+    </script>
+
+
     <script>
         let currentDate = new Date();
-        const schoolEvents = JSON.parse('{{ school_events|safe }}');
+
+    function safeParseJSON(elementId) {
+    const jsonContent = document.getElementById(elementId).textContent;
+    if (!jsonContent.trim()) return []; // 데이터가 없으면 빈 배열 반환
+    try {
+        return JSON.parse(jsonContent);
+    } catch (error) {
+        console.error(`Error parsing JSON from element: ${elementId}`, error);
+        return [];
+    }
+}
+
+const schoolEvents = Object.values(safeParseJSON('schoolEvents'));
+const currentEvents = Object.values(safeParseJSON('currentEvents'));
+
+
+
+console.log('schoolEvents:', schoolEvents);
+console.log('Type of schoolEvents:', typeof schoolEvents);
+console.log('Is schoolEvents an array?', Array.isArray(schoolEvents));
+
+
+
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
