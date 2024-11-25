@@ -4,8 +4,13 @@ from django.contrib.auth import authenticate, login, logout
 from .models import School_Event
 from .models import Custom_user
 import json
+<<<<<<< HEAD
 from .event import event_list, event_manage, event_create, school_event_list
 from django.shortcuts import render, get_object_or_404, redirect
+=======
+from .event import event_list, event_manage, event_create
+
+>>>>>>> 8992fbeed8981a7bd263be61bf234af68dcf62f3
 
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
@@ -185,6 +190,7 @@ def reset_pw(request, userid):
             return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 리디렉션
 
     return render(request, 'AUTH-05-light.html')
+<<<<<<< HEAD
 
 
 def todo_view(request): #일정 목록
@@ -204,3 +210,5 @@ def todo_view(request): #일정 목록
         'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
     })
+=======
+>>>>>>> 8992fbeed8981a7bd263be61bf234af68dcf62f3
