@@ -143,28 +143,34 @@ def find_pw(request):
 
 def reset_pw(request, userid):
     if request.method == "POST":
+        cur_pw = request.POST.get('cur_pw')
         new_pw = request.POST.get('new_pw')
         new_pw_confirm = request.POST.get('new_pw_confirm')
-
-        # 비밀번호 확인
-        if new_pw != new_pw_confirm:
-            messages.error(request, '비밀번호가 일치하지 않습니다.')
-            return render(request, 'AUTH-05-light.html')
 
         try:
             # 사용자 찾기
             user = Custom_user.objects.get(id=userid)
 
-            # 새 비밀번호 업데이트 (평문 비교 방식)
-            user.pw = new_pw  # 비밀번호 평문으로 저장
+            # 현재 비밀번호 확인
+            if user.pw != cur_pw:
+                messages.error(request, '현재 비밀번호가 일치하지 않습니다.')
+                return render(request, 'AUTH-05-light.html')
+
+            # 새 비밀번호와 확인 비밀번호가 같은지 확인
+            if new_pw != new_pw_confirm:
+                messages.error(request, '새 비밀번호가 일치하지 않습니다.')
+                return render(request, 'AUTH-05-light.html')
+
+            # 새 비밀번호 업데이트
+            user.pw = new_pw
             user.save()
 
             messages.success(request, '비밀번호가 성공적으로 변경되었습니다.')
-            return redirect('webapp:login')  # 로그인 페이지로 리디렉션
+            return redirect('webapp:login')  # 로그인 페이지로 이동
 
         except Custom_user.DoesNotExist:
             messages.error(request, '사용자를 찾을 수 없습니다.')
-            return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 리디렉션
+            return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 이동
 
     return render(request, 'AUTH-05-light.html')
 
