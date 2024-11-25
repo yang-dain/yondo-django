@@ -1,16 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import School_Event
 from .models import Custom_user
 import json
-<<<<<<< HEAD
 from .event import event_list, event_manage, event_create, school_event_list
 from django.shortcuts import render, get_object_or_404, redirect
-=======
-from .event import event_list, event_manage, event_create
 
->>>>>>> 8992fbeed8981a7bd263be61bf234af68dcf62f3
 
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
@@ -26,26 +21,8 @@ def update_schedule_view(request):
 
 def main(request):
     try:
-        # 모든 학사 일정 가져오기
-        school_events = School_Event.objects.all()
-
-        event_data = []
-        for event in school_events:
-            start_date = DateFormat(event.start_date).format("Y-m-d") if event.start_date else None
-            end_date = DateFormat(event.end_date).format("Y-m-d") if event.end_date else None
-            date_range = f"{start_date} ~ {end_date}"
-
-
-            # 데이터 추가
-            event_data.append({
-                "name": event.name,
-                "date_range": date_range,  # 표시용 날짜 범위
-                "start_date": start_date,  # 캘린더 이벤트에 사용
-                "end_date": end_date       # 캘린더 이벤트에 사용
-            })
-
-        # 템플릿으로 데이터 전달
-        return render(request, 'DASH-01-light.html', {'school_events': json.dumps(event_data)})
+        school_events = school_event_list()
+        return render(request, 'DASH-01-light.html', {'school_events': json.dumps(school_events)})
 
     except Exception as e:
         print(f"Error occurred: {e}")
@@ -190,7 +167,6 @@ def reset_pw(request, userid):
             return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 리디렉션
 
     return render(request, 'AUTH-05-light.html')
-<<<<<<< HEAD
 
 
 def todo_view(request): #일정 목록
@@ -210,5 +186,3 @@ def todo_view(request): #일정 목록
         'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
     })
-=======
->>>>>>> 8992fbeed8981a7bd263be61bf234af68dcf62f3

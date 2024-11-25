@@ -161,23 +161,54 @@
         </div>
     </div>
 
+   <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+    <script id="currentEvents" type="application/json">
+        {{ current_events|safe }}
+    </script>
+    <script id="endedEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
+
+
     <script>
         let currentDate = new Date();
-        
-        // 분리된 배열로 데이터 구조 변경
-        let schoolEvents = [
-            { id: 1, start_date: "2024-11-04", end_date: "2024-11-04", title: "학사일정1", content: "메모", type: "school" },
-            { id: 2, start_date: "2024-11-09", end_date: "2024-11-11", title: "학사일정2", content: "메모", type: "school" }
-        ];
 
-        let events = [
-            { id: 3, start_date: "2024-11-14", end_date: "2024-11-16", title: "진행중일정1", content: "메모", type: "current" },
-            { id: 4, start_date: "2024-11-13", end_date: "2024-11-17", title: "진행중일정2", content: "메모", type: "current" }
-        ];
 
-        let endEvents = [
-            { id: 5, start_date: "2024-11-29", end_date: "2024-12-04", title: "종료된일정5", content: "메모", type: "ended" }
-        ];
+    const schoolEvents = JSON.parse(document.getElementById('schoolEvents').textContent);
+    const currentEvents = JSON.parse(document.getElementById('currentEvents').textContent);
+    const endedEvents = JSON.parse(document.getElementById('endedEvents').textContent);
+
+
+    // 데이터를 HTML로 렌더링
+    function renderEvents(events, containerId) {
+         const container = document.getElementById(containerId);
+    container.innerHTML = ''; // 기존 내용 초기화
+
+    events.forEach(event => {
+        const eventElement = document.createElement('div');
+        eventElement.className = 'event';
+
+        const name = document.createElement('h4');
+        name.textContent = event.name;
+
+        const dates = document.createElement('p');
+        dates.textContent = `${event.start_date} ~ ${event.end_date}`;
+
+        const memo = document.createElement('p');
+        memo.textContent = event.memo;
+
+        eventElement.appendChild(name);
+        eventElement.appendChild(dates);
+        eventElement.appendChild(memo);
+
+        container.appendChild(eventElement);
+    });
+}
+
+
 
         function formatDate(dateString) {
             let date = new Date(dateString);
@@ -201,14 +232,14 @@
         function filterEventsByMonth(events, year, month) {
             // 해당 월의 이벤트 필터링
             let filteredEvents = events.filter(event => isEventInMonth(event, year, month));
-            
+
             // 종료일 기준으로 정렬
             filteredEvents.sort((a, b) => {
                 const dateA = new Date(a.end_date);
                 const dateB = new Date(b.end_date);
                 return dateA - dateB;
             });
-            
+
             return filteredEvents;
         }
 
@@ -224,29 +255,33 @@
             // 각 이벤트 배열 처리
             const scheduleTypes = [
                 { events: schoolEvents, containerId: "school-schedule-list" },
-                { events: events, containerId: "current-schedule-list" },
-                { events: endEvents, containerId: "ended-schedule-list" }
+                { events: currentEvents, containerId: "current-schedule-list" },
+                { events: endedEvents, containerId: "ended-schedule-list" }
             ];
 
             scheduleTypes.forEach(({ events: eventArray, containerId }) => {
                 const filteredEvents = filterEventsByMonth(eventArray, year, month);
-                
+
                 filteredEvents.forEach(event => {
                     let item = document.createElement("div");
                     item.classList.add("schedule-item");
 
-                    let title = document.createElement("h4");
-                    title.textContent = event.title;
+                    let name = document.createElement("h4");
+                    name.textContent = event.name;
 
                     let dates = document.createElement("p");
-                    dates.textContent = `${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}`;
+                    if (event.start_date === event.end_date) {
+                            dates.textContent = `${formatDate(event.start_date)}`;
+                        } else {
+                            dates.textContent = `${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}`;
+                        }
 
-                    let content = document.createElement("p");
-                    content.textContent = event.content;
+                    let memo = document.createElement("p");
+                    memo.textContent = event.memo;
 
-                    item.appendChild(title);
+                    item.appendChild(name);
                     item.appendChild(dates);
-                    item.appendChild(content);
+                    item.appendChild(memo);
                     document.getElementById(containerId).appendChild(item);
                 });
             });
