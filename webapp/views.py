@@ -281,3 +281,6 @@ def todo_edit(request): #일정 변경/삭제
 
     context = {'form': form, 'event': event, 'user_id': user_id}
     return render(request, 'TODO-03-light.html', context)
+
+def ui_list(request): #내 일정 관리
+    return render(request, 'SET-02-light.html')
