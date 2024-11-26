@@ -22,7 +22,6 @@ def update_schedule_view(request):
     update_schedule(input_file_path)
     return HttpResponse("School_Event 테이블이 업데이트되었습니다.")
 
-
 def main(request):
     try:
         school_events = school_event_list()
@@ -226,7 +225,7 @@ def mypage(request): #마이페이지
         'remaining_schedules': remaining_schedules,
     })
 
-def schedule_list(request):
+def schedule_list(request): #내 일정 관리
     return render(request, 'SET-03-light.html')
 
 def post(request): #일정 추가
@@ -252,3 +251,33 @@ def post(request): #일정 추가
     context = {'form': form, 'user_id': user_id}
 
     return render(request, 'TODO-02-light.html', context)
+
+
+def todo_edit(request): #일정 변경/삭제
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')
+
+
+    if request.method == 'POST':
+        # '삭제' 요청
+        if 'delete' in request.POST:
+            event.delete()
+            messages.success(request, "일정이 삭제되었습니다.")
+            return redirect('webapp:post')
+
+        # '변경' 요청
+        form = PostForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "일정이 수정되었습니다.")
+            return redirect('webapp:post')
+        else:
+            messages.error(request, '유효하지 않은 데이터입니다.')
+    else:
+        # 기존 데이터를 폼으로 전달
+        form = PostForm(instance=event)
+
+    context = {'form': form, 'event': event, 'user_id': user_id}
+    return render(request, 'TODO-03-light.html', context)

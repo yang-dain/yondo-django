@@ -674,7 +674,7 @@
         document.getElementById('add-schedule-button-1').addEventListener('click', () => {
             const title = document.getElementById('schedule-title').value.trim();
             const content = document.getElementById('schedule-content').value.trim();
-            
+
             if (selectedStartDate && selectedEndDate && title) {
                 const allEvents = [...schoolEvents, ...events, ...endEvents];
                 const newEvent = {
@@ -685,10 +685,10 @@
                     content: content,
                     type: 'current'
                 };
-                
+
                 events.push(newEvent);
                 renderCalendar();
-                
+
                 // 입력 필드 및 선택 초기화
                 document.getElementById('schedule-title').value = '';
                 document.getElementById('schedule-content').value = '';
@@ -696,12 +696,12 @@
                 document.getElementById('end-date').textContent = '선택해주세요';
                 selectedStartDate = null;
                 selectedEndDate = null;
-                
+
                 // 선택된 날짜 스타일 초기화
                 document.querySelectorAll('td.selected-date').forEach(td => {
                     td.classList.remove('selected-date');
                 });
-                
+
                 alert('일정이 추가되었습니다.');
             } else {
                 alert('시작 날짜, 종료 날짜, 일정 이름을 모두 입력해주세요.');
