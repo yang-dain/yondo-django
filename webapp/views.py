@@ -5,14 +5,15 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from .models import Custom_user
 import json
-from .event import event_list, event_manage, event_create, school_event_list
+from .event import event_list, school_event_list
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import PostForm
 from django.http import JsonResponse
 
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
-from .schedule import update_schedule  #학사일정 추출하는 schedule.py import
+from datetime import date
+from .schedule import update_schedule
 import os
 
 # Create your views here.
@@ -196,6 +197,37 @@ def todo_view(request): #일정 목록
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
     })
 
+def mypage(request): #마이페이지
+
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+
+    user_name = custom_user.name
+    join_date = custom_user.join_date
+    today = date.today()
+    days_elapsed = (today - join_date).days
+
+    user_events_data = event_list(custom_user)
+    current_events = user_events_data.get("current_events", [])
+    ended_events = user_events_data.get("ended_events", [])
+
+    completed_schedules = len(ended_events)
+    remaining_schedules = len(current_events)
+
+    # 템플릿에 데이터 전달
+    return render(request, 'SET-00-light.html', {
+        'user_name': user_name,
+        'days_elapsed': days_elapsed,
+        'completed_schedules': completed_schedules,
+        'remaining_schedules': remaining_schedules,
+    })
+
+def schedule_list(request):
+    return render(request, 'SET-03-light.html')
 
 def post(request): #일정 추가
     user_id = request.session.get('user_id')

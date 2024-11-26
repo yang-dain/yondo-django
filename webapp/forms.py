@@ -1,11 +1,11 @@
 from django import forms
-from django.forms import DateInput, TextInput, Textarea
+from django.forms import DateInput, TextInput, Textarea, CheckboxInput
 from .models import Event
 
 class PostForm(forms.ModelForm):
     class Meta:
         model = Event
-        fields = ('start_date', 'end_date', 'name', 'memo')
+        fields = ('start_date', 'end_date', 'name', 'memo', 'is_completed')
         widgets = {
             'start_date': DateInput(attrs={
                 'type': 'date',
@@ -29,5 +29,9 @@ class PostForm(forms.ModelForm):
                 'class': 'input-group',
                 'rows': 4,
                 'placeholder': '메모를 입력하세요...'
+            }),
+            'is_completed': CheckboxInput(attrs={
+                'id': 'is-completed',
+                'class': 'checkbox-input'
             }),
         }
