@@ -235,16 +235,18 @@
     <script>
         let currentDate = new Date();
 
-    function safeParseJSON(elementId) {
+function safeParseJSON(elementId) {
     const jsonContent = document.getElementById(elementId).textContent;
     if (!jsonContent.trim()) return []; // 데이터가 없으면 빈 배열 반환
     try {
-        return JSON.parse(jsonContent);
+        const parsed = JSON.parse(jsonContent);
+        return parsed.school_events || []; // 배열만 반환
     } catch (error) {
         console.error(`Error parsing JSON from element: ${elementId}`, error);
         return [];
     }
 }
+
 
 const schoolEvents = Object.values(safeParseJSON('schoolEvents'));
 const currentEvents = Object.values(safeParseJSON('currentEvents'));
@@ -254,6 +256,15 @@ const currentEvents = Object.values(safeParseJSON('currentEvents'));
 console.log('schoolEvents:', schoolEvents);
 console.log('Type of schoolEvents:', typeof schoolEvents);
 console.log('Is schoolEvents an array?', Array.isArray(schoolEvents));
+
+const schoolEventsRaw = document.getElementById('schoolEvents').textContent;
+console.log('Raw schoolEvents:', schoolEventsRaw);
+const parsedSchoolEvents = safeParseJSON('schoolEvents');
+console.log('Parsed schoolEvents:', parsedSchoolEvents);
+console.log('Rendering calendar...');
+const schoolEventsArray = schoolEvents.school_events || [];
+console.log('schoolEventsArray:', schoolEventsArray);
+
 
 
 
@@ -283,6 +294,7 @@ console.log('Is schoolEvents an array?', Array.isArray(schoolEvents));
                 row = '<tr>';
                 for (let i = 0; i < 7; i++) {
                     if (date <= lastDate) row += createCell(year, month, date++);
+
                     else row += '<td></td>';
                 }
                 row += '</tr>';
@@ -292,14 +304,18 @@ console.log('Is schoolEvents an array?', Array.isArray(schoolEvents));
         }
 
 function createCell(year, month, date) {
-    const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
 
-    const eventsOnThisDay = schoolEvents.filter(event => {
+
+    const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+    const eventsOnThisDay = schoolEventsArray.filter(event => {
+
+
         if (!event.start_date && !event.end_date) return false; // start_date, end_date 모두 없으면 제외
 
         const startDate = event.start_date ? new Date(event.start_date) : null;
         const endDate = event.end_date ? new Date(event.end_date) : null;
         const currentDate = new Date(fullDate);
+
 
         if (startDate && endDate) {
             return currentDate >= startDate && currentDate <= endDate;
@@ -308,12 +324,13 @@ function createCell(year, month, date) {
         }
         return false;
     });
-
     const eventList = eventsOnThisDay
         .map(event => `<div class="event">${event.name}</div>`)
         .join('');
 
     return `<td>${date}${eventList}</td>`;
+
+
 }
 
 
@@ -330,6 +347,7 @@ function updateScheduleList() {
             .filter(event => {
                 const startDate = event.start_date ? new Date(event.start_date) : null;
                 const endDate = event.end_date ? new Date(event.end_date) : null;
+
 
                 // 이번 달에 해당하는 일정만 필터링
                 return (
@@ -358,6 +376,8 @@ function updateScheduleList() {
             .join('')}
     `;
 }
+
+
 
 
 

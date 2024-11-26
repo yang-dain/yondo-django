@@ -1,3 +1,5 @@
+from lib2to3.fixes.fix_input import context
+
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -5,7 +7,8 @@ from .models import Custom_user
 import json
 from .event import event_list, event_manage, event_create, school_event_list
 from django.shortcuts import render, get_object_or_404, redirect
-
+from .forms import PostForm
+from django.http import JsonResponse
 
 from django.http import HttpResponse
 from django.utils.dateformat import DateFormat
@@ -179,7 +182,7 @@ def todo_view(request): #일정 목록
     user_id = request.session.get('user_id')
 
     if not user_id:
-        return redirect('/webapp/login/')
+        return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
 
@@ -192,3 +195,28 @@ def todo_view(request): #일정 목록
         'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
     })
+
+
+def post(request): #일정 추가
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.user = custom_user
+            post.save()
+            messages.success(request, "일정이 추가되었습니다.")
+            return redirect('webapp:post')
+        else:
+            messages.error(request, '유효하지 않은 데이터입니다.')
+    else:
+        form = PostForm()
+
+    context = {'form': form, 'user_id': user_id}
+
+    return render(request, 'TODO-02-light.html', context)
