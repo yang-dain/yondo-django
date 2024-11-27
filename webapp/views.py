@@ -24,12 +24,34 @@ def update_schedule_view(request):
 
 def main(request):
     try:
-        school_events = school_event_list()
-        return render(request, 'DASH-01-light.html', {'school_events': json.dumps(school_events)})
+        user_id = request.session.get('user_id')
+        if user_id:
+            custom_user = get_object_or_404(Custom_user, id=user_id)
+            events_data = event_list(custom_user)
+            for event in events_data["current_events"]:
+                event["content"] = event.pop("name")
+                event["type"] = "current"
+                event.pop("memo", None)
 
+            current_events = json.dumps(events_data['current_events'])
+        else:
+            current_events = json.dumps([])  # 비로그인 사용자의 경우 빈 리스트로 처리
+
+        school_events = school_event_list()
+        for event in school_events["school_events"]:
+            event["content"] = event.pop("name")
+            event["type"] = "school"
+        return render(request, 'DASH-01-light.html', {
+            'school_events': json.dumps(school_events),
+            'current_events' : current_events }
+        )
+
+    except KeyError as e:
+        print(f"KeyError occurred: {e}")
+        return render(request, 'error-light.html', {'error_message': f"KeyError: {e}"})
     except Exception as e:
         print(f"Error occurred: {e}")
-        return render(request, 'error.html', {'error_message': str(e)})
+        return render(request, 'error-light.html', {'error_message': str(e)})
 
 def login(request):
     if request.method == "POST":

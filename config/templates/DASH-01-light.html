@@ -61,7 +61,7 @@
         }
 
         .divider {
-            width: 99vw;
+            width: 100vw;
             height: 2px;
             background-color: #2e5743;
             margin-top: 10px;
@@ -82,7 +82,7 @@
             min-width: 1000px; /* 최소 너비 고정 */
             margin-top: 20px;
             justify-content: center;
-}
+        }
 
         .calendar {
             width: 700px;
@@ -142,71 +142,83 @@
             height: 25px;
         }
 
-.schedule-list {
-    width: 350px;
-    height: 630px;
-    padding: 20px;
-    background-color: #e0ecf8;
-    box-sizing: border-box;
-    overflow-y: auto;
-    border-radius: 10px; /* 모서리 둥글게 */
-    border: none; /* 테두리 제거 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
-}
+        td {
+            position: relative;
+            vertical-align: top;
+        }
 
-.calendar-event {
-    font-size: 0.7em;
-    height: 16px;
-    padding: 2px 4px;
-    margin: 1px 0;
-    background-color: #ccc;
-    color: #373737;
-    border-radius: 4px;
-    cursor: pointer;
-    position: absolute;
-    left: 0;
-    right: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+        .schedule-list {
+            width: 350px;
+            height: 630px;
+            padding: 20px;
+            background-color: #e0ecf8;
+            box-sizing: border-box;
+            overflow-y: auto;
+            border-radius: 10px; /* 모서리 둥글게 */
+            border: none; /* 테두리 제거 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
+        }
 
-.calendar-event:nth-child(1) {
-    top: 25px;
-}
+        .schedule-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
 
-.event-start {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-    margin-right: -1px;
-    margin-left: 3px;
-}
+        .calendar-event {
+            font-size: 0.7em;
+            height: 16px;
+            padding: 2px 4px;
+            margin: 1px 0;
+            background-color: #ccc;
+            color: #373737;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            left: 0;
+            right: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-.event-continue {
-    border-radius: 0;
-    margin-left: -1px;
-    margin-right: -1px;
-}
+        .calendar-event:nth-child(1) {
+            top: 25px;
+        }
 
-.event-end {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-    margin-left: -1px;
-    margin-right: 3px;
-}
+        .event-start {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            margin-right: -1px;
+            margin-left: 3px;
+        }
 
+        .event-continue {
+            border-radius: 0;
+            margin-left: -1px;
+            margin-right: -1px;
+        }
+
+        .event-end {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            margin-left: -1px;
+            margin-right: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="header-bar">
         <div class="logo-container">
-            <a href="home.html"><img src="/static/logo-light.png" alt="홈 화면 로고"></a>
+            <a href="home.html" class="logo">
+                <img src="logo-light.png" alt="홈 화면 로고" />
+            </a>
         </div>
         <div class="button-container">
             <a href="#" class="button logout">로그아웃</a>
             <a href="mypage.html" class="button mypage">마이페이지</a>
         </div>
     </div>
+    
     <div class="divider"></div>
     <div class="main-container">
         <div class="calendar-container">
@@ -216,7 +228,15 @@
                     <span>2024년 11월</span>
                     <button class="next-month">▶</button>
                 </div>
-                <table></table>
+                <table>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </table>
             </div>
             <div class="schedule-list" id="schedule-list">
                 <h3>이번 달 일정</h3>
@@ -227,171 +247,221 @@
     <script id="schoolEvents" type="application/json">
         {{ school_events|safe }}
     </script>
-    <script id="currentEvents" type="application/json">
+
+    <script id="events" type="application/json">
         {{ current_events|safe }}
     </script>
 
-
     <script>
+        // 현재 날짜 설정
         let currentDate = new Date();
 
-function safeParseJSON(elementId) {
-    const jsonContent = document.getElementById(elementId).textContent;
-    if (!jsonContent.trim()) return []; // 데이터가 없으면 빈 배열 반환
-    try {
-        const parsed = JSON.parse(jsonContent);
-        return parsed.school_events || []; // 배열만 반환
-    } catch (error) {
-        console.error(`Error parsing JSON from element: ${elementId}`, error);
-        return [];
-    }
-}
+        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
+        let hideSchoolEvents = 0;
+        let hideEvents = 0;
+
+        function safeParseJSON(elementId, propertyName) {
+            const jsonContent = document.getElementById(elementId)?.textContent;
+            if (!jsonContent?.trim()) return []; // 데이터가 없으면 빈 배열 반환
+            try {
+                const parsed = JSON.parse(jsonContent);
+                return propertyName ? (parsed[propertyName] || []) : parsed; // 특정 속성 반환 또는 전체 객체 반환
+            } catch (error) {
+                console.error(`Error parsing JSON from element: ${elementId}`, error);
+                return [];
+            }
+        }
+
+        const events = Object.values(safeParseJSON('events'));
+        const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
 
 
-const schoolEvents = Object.values(safeParseJSON('schoolEvents'));
-const currentEvents = Object.values(safeParseJSON('currentEvents'));
-
-
-
-console.log('schoolEvents:', schoolEvents);
-console.log('Type of schoolEvents:', typeof schoolEvents);
-console.log('Is schoolEvents an array?', Array.isArray(schoolEvents));
-
-const schoolEventsRaw = document.getElementById('schoolEvents').textContent;
-console.log('Raw schoolEvents:', schoolEventsRaw);
-const parsedSchoolEvents = safeParseJSON('schoolEvents');
-console.log('Parsed schoolEvents:', parsedSchoolEvents);
-console.log('Rendering calendar...');
-const schoolEventsArray = schoolEvents.school_events || [];
-console.log('schoolEventsArray:', schoolEventsArray);
-
-
-
-
+        // 달력 렌더링 함수
         function renderCalendar() {
+            const calendarTable = document.querySelector(".calendar table");
+            const calendarHeader = document.querySelector(".calendar-header span");
+
+            // 현재 날짜 정보 가져오기
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
 
-            document.querySelector('.calendar-header span').textContent = `${year}년 ${month + 1}월`;
-            const table = document.querySelector('.calendar table');
-            table.innerHTML = `
-                <tr>
-                    <th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th>
-                </tr>
-            `;
+            // 헤더에 현재 연도 및 월 업데이트
+            calendarHeader.textContent = `${year}년 ${month + 1}월`;
 
-            let row = '<tr>';
-            let date = 1;
+            // 기존 셀 초기화
+            const rows = Array.from(calendarTable.querySelectorAll("tr"));
+            rows.slice(1).forEach(row => row.remove());
 
-            for (let i = 0; i < firstDay; i++) row += '<td></td>';
-            for (let i = firstDay; i < 7; i++) row += createCell(year, month, date++);
-            row += '</tr>';
-            table.innerHTML += row;
-
-            while (date <= lastDate) {
-                row = '<tr>';
-                for (let i = 0; i < 7; i++) {
-                    if (date <= lastDate) row += createCell(year, month, date++);
-
-                    else row += '<td></td>';
-                }
-                row += '</tr>';
-                table.innerHTML += row;
+            // 새로운 셀 추가
+            let html = "<tr>";
+            for (let i = 0; i < firstDay; i++) {
+                html += "<td></td>";
             }
-            updateScheduleList();
+
+            for (let date = 1; date <= lastDate; date++) {
+                if ((firstDay + date - 1) % 7 === 0 && date > 1) {
+                    html += "</tr><tr>";
+                }
+                const currentFullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                html += `<td data-date="${currentFullDate}" style="cursor: pointer;">${date}</td>`;
+            }
+
+            html += "</tr>";
+            calendarTable.innerHTML += html;
+
+            // 일정 렌더링
+            renderEvents(year, month);
+            
+            // 이번 달 일정 목록 업데이트
+            updateMonthlySchedule(year, month);
+
+            // 버튼 이벤트 설정
+            document.querySelector(".prev-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            };
+
+            document.querySelector(".next-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            };
         }
 
-function createCell(year, month, date) {
+        // 일정 렌더링 함수
+        function renderEvents(year, month) {
+            const dateEventPositions = {};
+            
+            // 활성화된 일정만 필터링 (학사일정과 진행중인 일정만)
+            const activeEvents = [
+                ...(hideSchoolEvents ? [] : schoolEvents),
+                ...(hideEvents ? [] : events)
+            ].sort((a, b) => {
+                // 먼저 타입으로 정렬 (학사일정이 무조건 먼저)
+                if (a.type !== b.type) {
+                    return a.type === 'school' ? -1 : 1;
+                }
+                // 같은 타입인 경우 종료일로 정렬
+                return new Date(a.end_date) - new Date(b.end_date);
+            });
+                    
+            activeEvents.forEach(event => {
+            const start_date = new Date(event.start_date);
+            const end_date = new Date(event.end_date);
+            
+            if (start_date.getFullYear() <= year && start_date.getMonth() <= month && 
+            end_date.getFullYear() >= year && end_date.getMonth() >= month) {
+                
+                let availablePosition = checkAvailablePosition(start_date, end_date, dateEventPositions);
+                
+                if (availablePosition !== -1) {
+                    let currentDate = new Date(start_date);
+                    let isFirstWeek = true;
+                    
+                    while (currentDate <= end_date) {
+                        const currentDateStr = currentDate.toISOString().split('T')[0];
+                        const cell = document.querySelector(`td[data-date="${currentDateStr}"]`);
+                        
+                        if (cell) {
+                            const eventElement = document.createElement('div');
+                            eventElement.classList.add('calendar-event');
+                            eventElement.setAttribute('data-id', event.id);
+                            // 일정 타입에 따른 색상 설정
+                            eventElement.style.backgroundColor = event.type === 'school' ? '#FFD700' : '#87CEEB';
+                            
+                            eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
+                            
+                            if (isFirstWeek) {
+                                eventElement.textContent = event.content;
+                                eventElement.style.marginLeft = '3px';
+                                eventElement.style.marginRight = start_date.getTime() === end_date.getTime() ? '3px' : '-1px';
+                                isFirstWeek = false;
+                            } else {
+                                eventElement.style.marginLeft = '-1px';
+                                eventElement.style.marginRight = currentDate.getTime() === end_date.getTime() ? '3px' : '-1px';
+                            }
+                            
+                            // 일정 표시 스타일 설정
+                            if (currentDate.getTime() === start_date.getTime()) eventElement.classList.add('event-start');
+                            if (currentDate.getTime() === end_date.getTime()) eventElement.classList.add('event-end');
+                            if (currentDate.getDay() === 6 && currentDate.getTime() !== end_date.getTime()) {
+                                eventElement.classList.add('event-continue');
+                            }
+                            
+                            cell.appendChild(eventElement);
+                            
+                            if (!dateEventPositions[currentDateStr]) {
+                                dateEventPositions[currentDateStr] = [];
+                            }
+                            dateEventPositions[currentDateStr].push(availablePosition);
+                        }
+                        
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                }
+            }
+        });
+    }
 
+        // 이번 달 일정 목록 업데이트 함수
+        function updateMonthlySchedule(year, month) {
+        // 현재 월의 모든 활성 일정 필터링
+        const currentMonthEvents = [
+            ...(hideSchoolEvents ? [] : schoolEvents),
+            ...(hideEvents ? [] : events)
+        ].sort((a, b) => {
+            return new Date(a.end_date) - new Date(b.end_date);
+        }).filter(event => {
+            const eventStart = new Date(event.start_date);
+            const eventEnd = new Date(event.end_date);
+            return (
+            eventStart.getFullYear() === year &&
+            eventStart.getMonth() === month
+            ) || (
+            eventEnd.getFullYear() === year &&
+            eventEnd.getMonth() === month
+            );
+        });
 
-    const fullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-    const eventsOnThisDay = schoolEventsArray.filter(event => {
-
-
-        if (!event.start_date && !event.end_date) return false; // start_date, end_date 모두 없으면 제외
-
-        const startDate = event.start_date ? new Date(event.start_date) : null;
-        const endDate = event.end_date ? new Date(event.end_date) : null;
-        const currentDate = new Date(fullDate);
-
-
-        if (startDate && endDate) {
-            return currentDate >= startDate && currentDate <= endDate;
-        } else if (endDate) {
-            return currentDate.toDateString() === endDate.toDateString();
+        // 일정 목록 HTML 생성
+        const scheduleList = document.getElementById('schedule-list');
+        scheduleList.innerHTML = `
+            <h3>이번 달 일정</h3>
+            ${currentMonthEvents.reduce((html, event) => {
+            const start_date = new Date(event.start_date);
+            const end_date = new Date(event.end_date);
+            return `
+                ${html}
+                <div class="schedule-item">
+                ${event.content}<br>
+                ${start_date.getFullYear()}. ${String(start_date.getMonth() + 1).padStart(2, '0')}. ${String(start_date.getDate()).padStart(2, '0')}. ~ 
+                ${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}. 
+                </div>
+            `;
+            }, '')}
+        `;
         }
-        return false;
-    });
-    const eventList = eventsOnThisDay
-        .map(event => `<div class="event">${event.name}</div>`)
-        .join('');
 
-    return `<td>${date}${eventList}</td>`;
+        // 일정 위치 확인 함수
+        function checkAvailablePosition(start_date, end_date, dateEventPositions) {
+            let currentDate = new Date(start_date);
+            const positions = new Set();
+            
+            while (currentDate <= end_date) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (dateEventPositions[dateStr]) {
+                    dateEventPositions[dateStr].forEach(pos => positions.add(pos));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            if (!positions.has(0)) return 0;
+            if (!positions.has(1)) return 1;
+            return -1;
+        }
 
-
-}
-
-
-
-
-function updateScheduleList() {
-    const scheduleList = document.getElementById('schedule-list');
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    scheduleList.innerHTML = `
-        <h3>이번 달 일정</h3>
-        ${schoolEvents
-            .filter(event => {
-                const startDate = event.start_date ? new Date(event.start_date) : null;
-                const endDate = event.end_date ? new Date(event.end_date) : null;
-
-
-                // 이번 달에 해당하는 일정만 필터링
-                return (
-                    (startDate && startDate.getFullYear() === year && startDate.getMonth() === month) ||
-                    (endDate && endDate.getFullYear() === year && endDate.getMonth() === month)
-                );
-            })
-            .sort((a, b) => {
-                const endA = a.end_date ? new Date(a.end_date) : new Date();
-                const endB = b.end_date ? new Date(b.end_date) : new Date();
-                return endA - endB; // end_date를 기준으로 오름차순 정렬
-            })
-            .map(event => {
-                // 단일 일정인지 확인
-                const dateRange = event.start_date
-                    ? `${event.start_date} ~ ${event.end_date}` // 연속 일정
-                    : `${event.end_date}`; // 단일 일정
-
-                return `
-                    <div class="schedule-item">
-                        <strong>${event.name}</strong><br>
-                        ${dateRange}
-                    </div>
-                `;
-            })
-            .join('')}
-    `;
-}
-
-
-
-
-
-
-        document.querySelector('.prev-month').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            renderCalendar();
-        });
-
-        document.querySelector('.next-month').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            renderCalendar();
-        });
-
+        // 초기 달력 렌더링
         renderCalendar();
     </script>
 </body>
