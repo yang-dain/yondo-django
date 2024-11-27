@@ -24,6 +24,11 @@ def update_schedule_view(request):
 
 def main(request):
     try:
+        school_events = school_event_list()
+        for event in school_events["school_events"]:
+            event["content"] = event.pop("name")
+            event["type"] = "school"
+
         user_id = request.session.get('user_id')
         if user_id:
             custom_user = get_object_or_404(Custom_user, id=user_id)
@@ -33,17 +38,21 @@ def main(request):
                 event["type"] = "current"
                 event.pop("memo", None)
 
+            for event in events_data["ended_events"]:
+                event["content"] = event.pop("name")
+                event["type"] = "ended"
+                event.pop("memo", None)
+
             current_events = json.dumps(events_data['current_events'])
+            ended_events = json.dumps(events_data['ended_events'])
         else:
             current_events = json.dumps([])  # 비로그인 사용자의 경우 빈 리스트로 처리
+            ended_events = json.dumps([])
 
-        school_events = school_event_list()
-        for event in school_events["school_events"]:
-            event["content"] = event.pop("name")
-            event["type"] = "school"
         return render(request, 'DASH-01-light.html', {
             'school_events': json.dumps(school_events),
-            'current_events' : current_events }
+            'current_events' : current_events,
+            'ended_events' : ended_events}
         )
 
     except KeyError as e:

@@ -210,7 +210,7 @@
     <div class="header-bar">
         <div class="logo-container">
             <a href="home.html" class="logo">
-                <img src="logo-light.png" alt="홈 화면 로고" />
+                <img src="/static/logo-light.png" alt="홈 화면 로고" />
             </a>
         </div>
         <div class="button-container">
@@ -252,6 +252,10 @@
         {{ current_events|safe }}
     </script>
 
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
     <script>
         // 현재 날짜 설정
         let currentDate = new Date();
@@ -272,8 +276,12 @@
             }
         }
 
+        const endEvents = Object.values(safeParseJSON('endEvents'));
         const events = Object.values(safeParseJSON('events'));
         const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
+
+        console.log(events);
+        console.log(endEvents);
 
 
         // 달력 렌더링 함수
@@ -336,11 +344,14 @@
             // 활성화된 일정만 필터링 (학사일정과 진행중인 일정만)
             const activeEvents = [
                 ...(hideSchoolEvents ? [] : schoolEvents),
-                ...(hideEvents ? [] : events)
+                ...(hideEvents ? [] : events),
+                ...endEvents // 종료된 일정 추가
             ].sort((a, b) => {
-                // 먼저 타입으로 정렬 (학사일정이 무조건 먼저)
+
                 if (a.type !== b.type) {
-                    return a.type === 'school' ? -1 : 1;
+                    // 타입별 우선순위: school > events > ended
+                    const typeOrder = { school: 0, events: 1, ended: 2 };
+                    return typeOrder[a.type] - typeOrder[b.type];
                 }
                 // 같은 타입인 경우 종료일로 정렬
                 return new Date(a.end_date) - new Date(b.end_date);
@@ -367,8 +378,12 @@
                             const eventElement = document.createElement('div');
                             eventElement.classList.add('calendar-event');
                             eventElement.setAttribute('data-id', event.id);
-                            // 일정 타입에 따른 색상 설정
-                            eventElement.style.backgroundColor = event.type === 'school' ? '#FFD700' : '#87CEEB';
+                           // 일정 타입에 따른 색상 설정
+                            eventElement.style.backgroundColor =
+                                event.type === 'school' ? '#FFD700' :
+                                event.type === 'ended' ? '#D3D3D3' :
+                                '#87CEEB';
+
                             
                             eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
                             
@@ -409,7 +424,8 @@
         // 현재 월의 모든 활성 일정 필터링
         const currentMonthEvents = [
             ...(hideSchoolEvents ? [] : schoolEvents),
-            ...(hideEvents ? [] : events)
+            ...(hideEvents ? [] : events),
+            ...endEvents // 종료된 일정 추가
         ].sort((a, b) => {
             return new Date(a.end_date) - new Date(b.end_date);
         }).filter(event => {
@@ -431,12 +447,18 @@
             ${currentMonthEvents.reduce((html, event) => {
             const start_date = new Date(event.start_date);
             const end_date = new Date(event.end_date);
+            // 시작일과 종료일이 같을 경우 종료일만 표시
+            const dateDisplay = start_date.getTime() === end_date.getTime()
+            ? `${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}.`
+            : `${start_date.getFullYear()}. ${String(start_date.getMonth() + 1).padStart(2, '0')}. ${String(start_date.getDate()).padStart(2, '0')}. ~
+               ${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}.`;
+
+
             return `
                 ${html}
                 <div class="schedule-item">
                 ${event.content}<br>
-                ${start_date.getFullYear()}. ${String(start_date.getMonth() + 1).padStart(2, '0')}. ${String(start_date.getDate()).padStart(2, '0')}. ~ 
-                ${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}. 
+                ${dateDisplay}
                 </div>
             `;
             }, '')}

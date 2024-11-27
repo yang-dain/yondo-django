@@ -343,6 +343,7 @@
             const activeEvents = [
                 ...(hideSchoolEvents ? [] : schoolEvents),
                 ...(hideEvents ? [] : events)
+
             ].sort((a, b) => {
                 // 먼저 타입으로 정렬 (학사일정이 무조건 먼저)
                 if (a.type !== b.type) {
