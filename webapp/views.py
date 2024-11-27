@@ -271,10 +271,15 @@ def post(request): #일정 추가
         event["title"] = event.pop("name")
         event["type"] = "current"
         event.pop("memo", None)
+
+        print('current_events')
+
     for event in events_data["ended_events"]:
         event["title"] = event.pop("name")
-        event["type"] = "current"
+        event["type"] = "ended"
         event.pop("memo", None)
+        print('ended_events')
+
 
     school_events = school_event_list()
     for event in school_events["school_events"]:
@@ -296,7 +301,8 @@ def post(request): #일정 추가
 
     context = {'form': form, 'user_id': user_id,
                'school_events': json.dumps(school_events),
-               'current_events': json.dumps(events_data)}
+            'current_events' : json.dumps(events_data['current_events']),
+            'ended_events' : json.dumps(events_data['ended_events']),}
 
 
     return render(request, 'TODO-02-light.html', context)

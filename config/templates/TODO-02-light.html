@@ -437,6 +437,10 @@
         {{ current_events|safe }}
     </script>
 
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
 
     <script>
         
@@ -444,6 +448,7 @@
         // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
         let hideSchoolEvents = 0;
         let hideEvents = 0;
+        let hideEndEvents = 0;
 
         function safeParseJSON(elementId, propertyName) {
             const jsonContent = document.getElementById(elementId)?.textContent;
@@ -458,11 +463,13 @@
             }
         }
 
+        const endEvents = Object.values(safeParseJSON('endEvents'));
         const events = Object.values(safeParseJSON('events')).flat() || [];
         const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
 
         console.log(schoolEvents);
         console.log(events);
+        console.log(endEvents);
 
         // 선택된 날짜 저장 변수
         let selectedStartDate = null;
@@ -519,18 +526,18 @@
             
             const activeEvents = [
             ...(hideSchoolEvents ? [] : schoolEvents),
-            ...(hideEvents ? [] : events)
+            ...(hideEvents ? [] : events),
+            ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
         ];
         activeEvents.sort((a, b) => {
-            // 먼저 타입으로 정렬 (school이 우선)
-            if (a.type === 'school' && b.type !== 'school') return -1;
-            if (a.type !== 'school' && b.type === 'school') return 1;
+
+            if (a.type !== b.type) {
+                // 타입별 우선순위: school > events > ended
+                const typeOrder = { school: 0, current: 1, ended: 2 };
+                return typeOrder[a.type] - typeOrder[b.type];
+            }
             
-            // 같은 타입인 경우 종료일로 정렬
-            const aEndDate = new Date(a.end_date);
-            const bEndDate = new Date(b.end_date);
-            
-            return aEndDate - bEndDate;
+           return new Date(a.end_date) - new Date(b.end_date);
         });
 
             activeEvents.forEach(event => {
@@ -560,7 +567,10 @@
                                 const eventElement = document.createElement('div');
                                 eventElement.classList.add('calendar-event');
                                 eventElement.setAttribute('data-id', event.id);
-                                eventElement.style.backgroundColor = event.type === 'school' ? '#FFD700' : '#87CEEB';
+                                eventElement.style.backgroundColor =
+                                    event.type === 'school' ? '#FFD700' :
+                                    event.type === 'ended' ? '#D3D3D3' :
+                                    '#87CEEB';
                                 
                                 eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
                                 
