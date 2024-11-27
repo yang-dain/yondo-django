@@ -3,77 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link id="theme-style" rel="stylesheet" href="">
     <title>월별 일정 관리 페이지</title>
-
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            min-width: 1280px;
-            overflow-x: auto; 
-            overflow-y: auto; 
-            background-color: #f6f3ef;
-            color: #373737;
-            font-family: Arial, sans-serif;
-            box-sizing: border-box;
-        }
-
-        .header-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            box-sizing: border-box;
-            background-color: #f6f3ef;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .logo-container img {
-            width: 120px;
-            height: auto;
-        }
-
-        .logo-container a:hover img {
-            opacity: 0.8; 
-            transform: scale(1.05); 
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .button-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .button {
-            color: #f6f3ef;
-            background-color: #2e5743;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            z-index: 9999;
-            border: none;
-            cursor: pointer;
-        }
-
-        .button:hover {
-            background-color: #254a36;
-        }
-
-        .divider {
-            width: 100%;
-            height: 2px;
-            background-color: #2e5743;
-            margin-top: 10px;
-            position: sticky;
-            top: 60px;
-            z-index: 1000;
-        }
-
+        
         .month-selector {
             display: flex;
             justify-content: center;
@@ -90,6 +23,7 @@
         }
 
         .main-container {
+            width: 1500px;
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -99,14 +33,6 @@
 
         .schedule-list {
             width: 400px;
-            height: 630px;
-            padding: 20px;
-            background-color: #e0ecf8;
-            box-sizing: border-box;
-            overflow-y: auto;
-            border-radius: 10px;
-            border: none;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .schedule-list h3 {
@@ -117,6 +43,7 @@
 
         .schedule-item {
             margin-bottom: 15px;
+            padding-bottom: initial;
         }
 
         .schedule-item h4 {
@@ -133,7 +60,7 @@
     <div class="header-bar">
         <div class="logo-container">
             <a href="home.html" class="logo">
-                <img src="/static/logo-light.png" alt="홈 화면 로고" />
+                <img src="/static/lightmode.png" alt="홈 화면 로고" />
             </a>
         </div>
         <div class="button-container">
@@ -144,9 +71,9 @@
     <div class="divider"></div>
     
     <div class="month-selector">
-        <button class="button" onclick="changeMonth(-1)">◀</button>
-        <div class="month-display" id="current-month"></div>
-        <button class="button" onclick="changeMonth(1)">▶</button>
+        <button class="prev-month" onclick="changeMonth(-1)">◀</button>
+        <div class="month-display" id="current-month">2024년 11월</div>
+        <button class="next-month" onclick="changeMonth(1)">▶</button>
     </div>
 
     <div class="main-container">
@@ -175,7 +102,21 @@
 
     <script>
         let currentDate = new Date();
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        let mode = 1;
 
+        document.addEventListener('DOMContentLoaded', function() {
+        const styleSheet = document.getElementById('theme-style');
+        const logoImg = document.querySelector('.logo img');
+        
+        if (mode === 1) {
+            styleSheet.href = '../../static/styles1-light.css';
+            logoImg.src = '/static/lightmode.png';
+        } else {
+            styleSheet.href = '../../static/styles1-dark.css';
+            logoImg.src = '/static/darkmode.png';
+        }
+    });
 
     const schoolEvents = JSON.parse(document.getElementById('schoolEvents').textContent);
     const currentEvents = JSON.parse(document.getElementById('currentEvents').textContent);
@@ -294,7 +235,7 @@
         }
 
         // 초기 표시
-        updateMonthDisplay();
         displayScheduleItems();
+        updateMonthDisplay();
     </script>
 </html>
