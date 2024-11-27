@@ -4,207 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일정 관리 페이지</title>
+    <link id="theme-style" rel="stylesheet" href="">
 
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            overflow-x: auto; 
-            overflow-y: auto; 
-            background-color: #f6f3ef;
-            color: #373737;
-            font-family: Arial, sans-serif;
-            box-sizing: border-box;
-        }
-
-        .header-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            box-sizing: border-box;
-            background-color: #f6f3ef;
-        }
-
-        .logo-container img {
-            width: 120px;
-            height: auto;
-        }
-
-        .logo-container a:hover img {
-            opacity: 0.8; 
-            transform: scale(1.05); 
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .button-container {
-            display: flex;
-            gap: 10px; /* 버튼 간 간격 */
-        }
-
-        .button {
-            color: #f6f3ef;
-            background-color: #2e5743; /* 버튼 배경색 */
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            z-index: 9999;
-        }
-
-        .button:hover {
-            background-color: #254a36; /* 버튼 호버 색상 */
-        }
-
-        .divider {
-            width: 100vw;
-            height: 2px;
-            background-color: #2e5743;
-            margin-top: 10px;
-        }
-
-        .main-container {
-            width: 1000px;
-            height: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            box-sizing: border-box;
-            background-color: #f6f3ef;
-        }
-
-        .calendar-container {
-            display: flex;
-            gap: 20px;
-            min-width: 1000px; /* 최소 너비 고정 */
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .calendar {
-            width: 700px;
-            height: 630px;
-            padding: 20px;
-            background-color: white;
-            box-sizing: border-box;
-            overflow: auto;
-            min-width: 700px;
-            min-height: 630px;
-            border-radius: 10px; /* 모서리 둥글게 */
-            border: none; /* 테두리 제거 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
-        }
-
-        .calendar-header {
-            font-size: 1.5em;
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #373737;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        button.prev-month, button.next-month {
-            background: none;
-            border: none;
-            font-size: 1em;
-            cursor: pointer;
-            color: #373737;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-            text-align: center;
-            font-size: 1.2em;
-        }
-
-        th, td {
-            width: 14.28%;
-            height: 90px;
-            padding: 5px;
-            border: 1px solid #398428;
-            vertical-align: top;
-            text-align: left;
-        }
-
-        th {
-            font-size: 1em;
-            color: #373737;
-            text-align: center;
-            height: 25px;
-        }
-
-        td {
-            position: relative;
-            vertical-align: top;
-        }
-
-        .schedule-list {
-            width: 350px;
-            height: 630px;
-            padding: 20px;
-            background-color: #e0ecf8;
-            box-sizing: border-box;
-            overflow-y: auto;
-            border-radius: 10px; /* 모서리 둥글게 */
-            border: none; /* 테두리 제거 */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 그림자 추가 */
-        }
-
-        .schedule-item {
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-        }
-
-        .calendar-event {
-            font-size: 0.7em;
-            height: 16px;
-            padding: 2px 4px;
-            margin: 1px 0;
-            background-color: #ccc;
-            color: #373737;
-            border-radius: 4px;
-            cursor: pointer;
-            position: absolute;
-            left: 0;
-            right: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .calendar-event:nth-child(1) {
-            top: 25px;
-        }
-
-        .event-start {
-            border-top-left-radius: 4px;
-            border-bottom-left-radius: 4px;
-            margin-right: -1px;
-            margin-left: 3px;
-        }
-
-        .event-continue {
-            border-radius: 0;
-            margin-left: -1px;
-            margin-right: -1px;
-        }
-
-        .event-end {
-            border-top-right-radius: 4px;
-            border-bottom-right-radius: 4px;
-            margin-left: -1px;
-            margin-right: 3px;
-        }
-    </style>
+    <style></style>
 </head>
 <body>
     <div class="header-bar">
@@ -263,6 +65,24 @@
         // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
         let hideSchoolEvents = 0;
         let hideEvents = 0;
+        // 로그인 여부 설정 (0: 로그아웃 상태, 1: 로그인 상태)
+        let isLoggedIn = 1;
+
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        let mode = 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const styleSheet = document.getElementById('theme-style');
+        const logoImg = document.querySelector('.logo img');
+        
+        if (mode === 1) {
+            styleSheet.href = '../../static/styles1-light.css';
+            logoImg.src = '/static/lightmode.png';
+        } else {
+            styleSheet.href = '../../static/styles1-dark.css';
+            logoImg.src = '/static/darkmode.png';
+        }
+    });
 
         function safeParseJSON(elementId, propertyName) {
             const jsonContent = document.getElementById(elementId)?.textContent;
