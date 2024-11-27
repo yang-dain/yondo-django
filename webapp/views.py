@@ -257,6 +257,21 @@ def post(request): #일정 추가
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    events_data = event_list(custom_user)
+    for event in events_data["current_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "current"
+        event.pop("memo", None)
+    for event in events_data["ended_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "current"
+        event.pop("memo", None)
+
+    school_events = school_event_list()
+    for event in school_events["school_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "school"
+
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
@@ -270,7 +285,10 @@ def post(request): #일정 추가
     else:
         form = PostForm()
 
-    context = {'form': form, 'user_id': user_id}
+    context = {'form': form, 'user_id': user_id,
+               'school_events': json.dumps(school_events),
+               'current_events': json.dumps(events_data)}
+
 
     return render(request, 'TODO-02-light.html', context)
 
