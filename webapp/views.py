@@ -353,4 +353,4 @@ def todo_edit(request): #일정 변경/삭제
     return render(request, 'TODO-03.html', context)
 
 def ui_list(request): #내 일정 관리
-    return render(request, 'SET-02-light.html')
+    return render(request, 'SET-02.html')
