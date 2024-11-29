@@ -263,6 +263,7 @@
         // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
         let hideSchoolEvents = 0;
         let hideEvents = 0;
+        let hideEndEvents = 0;
 
         function safeParseJSON(elementId, propertyName) {
             const jsonContent = document.getElementById(elementId)?.textContent;
@@ -279,9 +280,6 @@
         const endEvents = Object.values(safeParseJSON('endEvents'));
         const events = Object.values(safeParseJSON('events'));
         const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
-
-        console.log(events);
-        console.log(endEvents);
 
 
         // 달력 렌더링 함수
@@ -345,7 +343,7 @@
             const activeEvents = [
                 ...(hideSchoolEvents ? [] : schoolEvents),
                 ...(hideEvents ? [] : events),
-                ...endEvents // 종료된 일정 추가
+                ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
             ].sort((a, b) => {
 
                 if (a.type !== b.type) {
@@ -425,7 +423,7 @@
         const currentMonthEvents = [
             ...(hideSchoolEvents ? [] : schoolEvents),
             ...(hideEvents ? [] : events),
-            ...endEvents // 종료된 일정 추가
+            ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
         ].sort((a, b) => {
             return new Date(a.end_date) - new Date(b.end_date);
         }).filter(event => {

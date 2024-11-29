@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일정 관리 페이지</title>
+    <link id="theme-style" rel="stylesheet" href="">
+    <style>
+ 
+
+        .schedule-item {
+            padding-bottom: initial;
+            font-size: 0.9em;
+        }
+
+        .schedule-list {
+            width: 300px;
+            height: 420px;
+        }
+
+        .add-schedule-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .schedule-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            padding-bottom: initial;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/main/" class="logo">
+                <img src="/static/lightmode.png" alt="홈 화면 로고" />
+            </a>
+        </div>
+        <div class="button-container">
+            <a href="/webapp/logout/" class="button logout">로그아웃</a>
+            <a href="/webapp/mypage/" class="button mypage">마이페이지</a>
+        </div>
+    </div>
+    <div class="divider"></div>
+    <div class="main-container">
+        <div class="calendar-container">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button class="prev-month">◀</button>
+                    <span>2024년 11월</span>
+                    <button class="next-month">▶</button>
+                </div>
+                <table>
+                    <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                    </tr>
+                </table>            
+            </div>
+            <div class="right-container">
+                <div class="schedule-list" id="schedule-list">
+                    <h3>일정 추가</h3>
+                    <form method="post" class="add-schedule-container">
+                        {% csrf_token %}
+                        <div class="date-display">
+                            <div class="date-item">
+                                <label for="start-date">시작 날짜:</label>
+                                {{ form.start_date }}
+                            </div>
+                            <div class="date-item">
+                                <label for="end-date">종료 날짜:</label>
+                                {{ form.end_date }}
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <label for="schedule-title">일정이름</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="input-group">
+                            <label for="schedule-content">메모</label>
+                            {{ form.memo }}
+                        </div>
+                        <button type="submit" id="add-schedule-button">추가</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+
+    <script id="events" type="application/json">
+        {{ current_events|safe }}
+    </script>
+
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
+
+    <script>
+        
+        let currentDate = new Date();
+        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
+        let hideSchoolEvents = 0;
+        let hideEvents = 0;
+        let hideEndEvents = 0;
+
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        let mode = 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const styleSheet = document.getElementById('theme-style');
+        const logoImg = document.querySelector('.logo img');
+        
+        if (mode === 1) {
+            styleSheet.href = '../../static/styles1-light.css';
+            logoImg.src = '/static/lightmode.png';
+        } else {
+            styleSheet.href = '../../static/styles1-dark.css';
+            logoImg.src = '/static/darkmode.png';
+        }
+    });
+
+        function safeParseJSON(elementId, propertyName) {
+            const jsonContent = document.getElementById(elementId)?.textContent;
+            console.log(`Content of #${elementId}:`, jsonContent);
+            if (!jsonContent?.trim()) return []; // 데이터가 없으면 빈 배열 반환
+            try {
+                const parsed = JSON.parse(jsonContent);
+                return propertyName ? (parsed[propertyName] || []) : parsed; // 특정 속성 반환 또는 전체 객체 반환
+            } catch (error) {
+                console.error(`Error parsing JSON from element: ${elementId}`, error);
+                return [];
+            }
+        }
+
+        const endEvents = Object.values(safeParseJSON('endEvents'));
+        const events = Object.values(safeParseJSON('events')).flat() || [];
+        const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
+
+        console.log(schoolEvents);
+        console.log(events);
+        console.log(endEvents);
+
+        // 선택된 날짜 저장 변수
+        let selectedStartDate = null;
+        let selectedEndDate = null;
+
+        // 달력 렌더링 함수
+        function renderCalendar() {
+            const calendarTable = document.querySelector(".calendar table");
+            const calendarHeader = document.querySelector(".calendar-header span");
+
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            calendarHeader.textContent = `${year}년 ${month + 1}월`;
+
+            const rows = Array.from(calendarTable.querySelectorAll("tr"));
+            rows.slice(1).forEach(row => row.remove());
+
+            let html = "<tr>";
+            for (let i = 0; i < firstDay; i++) {
+                html += "<td></td>";
+            }
+
+            for (let date = 1; date <= lastDate; date++) {
+                if ((firstDay + date - 1) % 7 === 0 && date > 1) {
+                    html += "</tr><tr>";
+                }
+                const currentFullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                html += `<td data-date="${currentFullDate}" style="cursor: pointer;">${date}</td>`;
+            }
+
+            html += "</tr>";
+            calendarTable.innerHTML += html;
+
+            renderEvents(year, month);
+            setupDateClickHandlers();
+
+            document.querySelector(".prev-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            };
+
+            document.querySelector(".next-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            };
+        }
+
+        // 일정 렌더링 함수
+        function renderEvents(year, month) {
+            const dateEventPositions = {};
+            
+            const activeEvents = [
+            ...(hideSchoolEvents ? [] : schoolEvents),
+            ...(hideEvents ? [] : events),
+            ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
+        ];
+        activeEvents.sort((a, b) => {
+
+            if (a.type !== b.type) {
+                // 타입별 우선순위: school > events > ended
+                const typeOrder = { school: 0, current: 1, ended: 2 };
+                return typeOrder[a.type] - typeOrder[b.type];
+            }
+            
+           return new Date(a.end_date) - new Date(b.end_date);
+        });
+
+            activeEvents.forEach(event => {
+                const start_date = new Date(event.start_date);
+                const end_date = new Date(event.end_date);
+                
+                if (start_date.getFullYear() <= year && start_date.getMonth() <= month && 
+                end_date.getFullYear() >= year && end_date.getMonth() >= month) {
+                    
+                    let availablePosition = checkAvailablePosition(start_date, end_date, dateEventPositions);
+                    
+                    if (availablePosition !== -1) {
+                        let currentDate = new Date(start_date);
+                        let isFirstWeek = true;
+                        
+                        while (currentDate <= end_date) {
+                            const currentDateStr = currentDate.toISOString().split('T')[0];
+                            const cell = document.querySelector(`td[data-date="${currentDateStr}"]`);
+                            
+                            if (cell) {
+                                const isNewWeek = currentDate.getDay() === 0 || currentDate.getTime() === start_date.getTime();
+                                const isLastDay = currentDate.getTime() === end_date.getTime();
+                                const isLastDayOfWeek = currentDate.getDay() === 6;
+                                const isMonthChanged = currentDate.getMonth() !== start_date.getMonth();
+                                const isYearChanged = currentDate.getFullYear() !== start_date.getFullYear();
+
+                                const eventElement = document.createElement('div');
+                                eventElement.classList.add('calendar-event');
+                                eventElement.setAttribute('data-id', event.id);
+                                eventElement.style.backgroundColor =
+                                    event.type === 'school' ? '#FFD700' :
+                                    event.type === 'ended' ? '#D3D3D3' :
+                                    '#87CEEB';
+                                
+                                eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
+                                
+                                if (isFirstWeek) {
+                                    eventElement.textContent = event.title;
+                                    eventElement.style.marginLeft = start_date.getTime() === end_date.getTime() ? '3px' : '3px';
+                                    eventElement.style.marginRight = start_date.getTime() === end_date.getTime() ? '3px' : 
+                                                                isLastDayOfWeek ? '1px' : '-1px'; // 주의 마지막 날이면 1px 여백
+                                    isFirstWeek = false;
+                                } else if (isLastDay) {
+                                    eventElement.style.marginLeft = currentDate.getDay() === 0 ? '1px' : '-1px'; // 일요일에 시작하면 1px 여백
+                                    eventElement.style.marginRight = '3px';
+                                } else {
+                                    eventElement.style.marginLeft = currentDate.getDay() === 0 ? '1px' : '-1px'; // 일요일에 시작하면 1px 여백
+                                    eventElement.style.marginRight = isLastDayOfWeek ? '1px' : '-1px'; // 주의 마지막 날이면 1px 여백
+                                }
+                                
+                                if (isNewWeek) eventElement.classList.add('event-start');
+                                if (isLastDayOfWeek && !isLastDay) eventElement.classList.add('event-continue');
+                                if (isLastDay) eventElement.classList.add('event-end');
+                                if (isMonthChanged || isYearChanged) eventElement.classList.add('event-continue');
+                                
+                                cell.appendChild(eventElement);
+                                
+                                if (!dateEventPositions[currentDateStr]) {
+                                    dateEventPositions[currentDateStr] = [];
+                                }
+                                dateEventPositions[currentDateStr].push(availablePosition);
+                            }
+                            
+                            currentDate.setDate(currentDate.getDate() + 1);
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // 일정 위치 확인 함수
+        function checkAvailablePosition(start_date, end_date, dateEventPositions) {
+            let currentDate = new Date(start_date);
+            const positions = new Set();
+            
+            while (currentDate <= end_date) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (dateEventPositions[dateStr]) {
+                    dateEventPositions[dateStr].forEach(pos => positions.add(pos));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            if (!positions.has(0)) return 0;
+            if (!positions.has(1)) return 1;
+            return -1;
+        }
+
+        // 날짜 클릭 이벤트 설정
+        function setupDateClickHandlers() {
+            document.querySelectorAll('td[data-date]').forEach(cell => {
+                cell.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const clickedDate = e.currentTarget.getAttribute('data-date');
+                    
+                    // 모든 선택된 날짜 스타일 초기화
+                    document.querySelectorAll('td.selected-date').forEach(td => {
+                        td.classList.remove('selected-date');
+                    });
+
+                    if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
+                        // 새로운 시작 날짜 설정
+                        selectedStartDate = clickedDate;
+                        selectedEndDate = null;
+                        document.getElementById('start-date').textContent = formatDate(clickedDate);
+                        document.getElementById('end-date').textContent = '선택해주세요';
+                        e.currentTarget.classList.add('selected-date');
+                    } else {
+                        const startDateObj = new Date(selectedStartDate);
+                        const clickedDateObj = new Date(clickedDate);
+                        
+                        if (clickedDateObj < startDateObj) {
+                            // 이전 날짜 선택 시 새로운 시작 날짜로 설정
+                            selectedStartDate = clickedDate;
+                            document.getElementById('start-date').textContent = formatDate(clickedDate);
+                            e.currentTarget.classList.add('selected-date');
+                        } else {
+                            // 종료 날짜 설정 및 범위 내 모든 셀 선택
+                            selectedEndDate = clickedDate;
+                            document.getElementById('end-date').textContent = formatDate(clickedDate);
+                            
+                            // 시작 날짜부터 종료 날짜까지의 모든 셀 선택
+                            const currentDate = new Date(selectedStartDate);
+                            const endDate = new Date(selectedEndDate);
+                            
+                            while (currentDate <= endDate) {
+                                const dateStr = currentDate.toISOString().split('T')[0];
+                                const dateCell = document.querySelector(`td[data-date="${dateStr}"]`);
+                                if (dateCell) {
+                                    dateCell.classList.add('selected-date');
+                                }
+                                currentDate.setDate(currentDate.getDate() + 1);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        // 일정 추가 버튼 이벤트
+        document.getElementById('add-schedule-button').addEventListener('click', () => {
+            const title = document.getElementById('schedule-title').value.trim();
+            const content = document.getElementById('schedule-content').value.trim();
+            
+            if (selectedStartDate && selectedEndDate && title) {
+                const allEvents = [...schoolEvents, ...events, ...endEvents];
+                const newEvent = {
+                    id: Math.max(...allEvents.map(e => e.id), 0) + 1,
+                    start_date: selectedStartDate,
+                    end_date: selectedEndDate,
+                    title: title,
+                    content: content,
+                };
+                
+                events.push(newEvent);
+                renderCalendar();
+                
+                // 입력 필드 및 선택 초기화
+                document.getElementById('schedule-title').value = '';
+                document.getElementById('schedule-content').value = '';
+                document.getElementById('start-date').textContent = '선택해주세요';
+                document.getElementById('end-date').textContent = '선택해주세요';
+                selectedStartDate = null;
+                selectedEndDate = null;
+                
+                // 선택된 날짜 스타일 초기화
+                document.querySelectorAll('td.selected-date').forEach(td => {
+                    td.classList.remove('selected-date');
+                });
+                
+                alert('일정이 추가되었습니다.');
+            } else {
+                alert('시작 날짜, 종료 날짜, 일정 이름을 모두 입력해주세요.');
+            }
+        });
+
+        renderCalendar();
+    </script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
+    </script>

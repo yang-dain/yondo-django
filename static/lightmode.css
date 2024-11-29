@@ -1,0 +1,109 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color:   #f6f3ef;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+.login-container, .signup-container, .find-container,.change-container {
+    background-color: #ffffff;
+    width: 400px;
+    padding: 40px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.title {
+    background-color: #8c8c8c;
+    color: white;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: left;
+    border-radius: 8px 8px 0 0;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.signup-container input[type="text"],
+.signup-container input[type="password"],
+.signup-container input[type="email"],
+.signup-container select,
+.find-container input[type="text"],
+.find-container input[type="email"],
+.change-container input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.find-container select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    background-color: #fff;
+}
+
+.login-container button, .signup-container button,.find-container button, .change-container button {
+    width: 100%;
+    padding: 12px;
+    background-color:  #254a36;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.login-container button:hover,.signup-container button:hover,.find-container button:hover, .change-container button:hover {
+    background-color: #91bde1;
+}
+
+.extra-links {
+    margin-top: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.extra-links a {
+    color: #666;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+.extra-links a:hover {
+    text-decoration: underline;
+}
+
+.home-box {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-box img {
+    width: 150px;
+    height: 150px; 
+    object-fit: contain;
+    border-radius: 5px;
+}

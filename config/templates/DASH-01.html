@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일정 관리 페이지</title>
+    <link id="theme-style" rel="stylesheet" href="">
+
+    <style></style>
+</head>
+<body>
+    <div class="header-bar" data-is-logged-in="{{ is_logged_in }}">
+        <div class="logo-container">
+            <a href="/webapp/main/" class="logo">
+                <img src="/static/lightmode.png" alt="홈 화면 로고" />
+            </a>
+        </div>
+        <div class="button-container" id="auth-buttons">
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+    <div class="main-container">
+        <div class="calendar-container">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <button class="prev-month">◀</button>
+                    <span>2024년 11월</span>
+                    <button class="next-month">▶</button>
+                </div>
+                <table>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </table>
+            </div>
+            <div class="schedule-list" id="schedule-list">
+                <h3>이번 달 일정</h3>
+            </div>
+        </div>
+    </div>
+
+    <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+
+    <script id="events" type="application/json">
+        {{ current_events|safe }}
+    </script>
+
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
+    <script>
+        // 현재 날짜 설정
+        let currentDate = new Date();
+
+        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
+        let hideSchoolEvents = 0;
+        let hideEvents = 0;
+        // 로그인 여부 설정 (0: 로그아웃 상태, 1: 로그인 상태)
+        let isLoggedIn = 1;
+
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        let mode = 1;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const isLoggedIn = document.querySelector('.header-bar').getAttribute('data-is-logged-in') === '1';
+            const buttonContainer = document.getElementById('auth-buttons');
+
+            // 로그인 상태에 따라 버튼 변경
+            if (isLoggedIn) {
+                buttonContainer.innerHTML = `
+                    <a href="/webapp/logout/" class="button logout">로그아웃</a>
+                    <a href="/webapp/mypage/" class="button mypage">마이페이지</a>
+                `;
+            } else {
+                buttonContainer.innerHTML = `
+                    <a href="/webapp/login/" class="button login">로그인</a>
+                    <a href="/webapp/signup/" class="button signup">회원가입</a>
+                `;
+            };
+
+        const styleSheet = document.getElementById('theme-style');
+        const logoImg = document.querySelector('.logo img');
+        
+        if (mode === 1) {
+            styleSheet.href = '../../static/styles1-light.css';
+            logoImg.src = '/static/lightmode.png';
+        } else {
+            styleSheet.href = '../../static/styles1-dark.css';
+            logoImg.src = '/static/darkmode.png';
+        }
+    });
+
+/*기존 코드
+        // 버튼 컨테이너 업데이트 함수
+        function updateAuthButtons(isLoggedIn) {
+            const buttonContainer = document.getElementById('auth-buttons');
+
+            // 로그인 상태 isLoggedIn = 1
+            if (isLoggedIn) {
+                buttonContainer.innerHTML = `
+                    <a href="#" class="button logout">로그아웃</a>
+                    <a href="/webapp/mypage/" class="button mypage">마이페이지</a>
+                `;
+            } else { // 로그아웃 상태 isLoggedIn = 0
+                buttonContainer.innerHTML = `
+                    <a href="/webapp/login/" class="button login">로그인</a>
+                    <a href="/webapp/signup/" class="button signup">회원가입</a>
+                `;
+            }
+        }
+*/
+        // 로그아웃
+        function logout() {
+            fetch('/logout/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 로그아웃 성공 시
+                    isLoggedIn = 0;
+                    updateAuthButtons();
+                } else {
+                    console.error('로그아웃 실패');
+                }
+            })
+            .catch(error => console.error('로그아웃 요청 오류:', error));
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        function safeParseJSON(elementId, propertyName) {
+            const jsonContent = document.getElementById(elementId)?.textContent;
+            if (!jsonContent?.trim()) return []; // 데이터가 없으면 빈 배열 반환
+            try {
+                const parsed = JSON.parse(jsonContent);
+                return propertyName ? (parsed[propertyName] || []) : parsed; // 특정 속성 반환 또는 전체 객체 반환
+            } catch (error) {
+                console.error(`Error parsing JSON from element: ${elementId}`, error);
+                return [];
+            }
+        }
+
+        const endEvents = Object.values(safeParseJSON('endEvents'));
+        const events = Object.values(safeParseJSON('events'));
+        const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
+
+        console.log(events);
+        console.log(endEvents);
+
+
+        // 달력 렌더링 함수
+        function renderCalendar() {
+            const calendarTable = document.querySelector(".calendar table");
+            const calendarHeader = document.querySelector(".calendar-header span");
+
+            // 현재 날짜 정보 가져오기
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            // 헤더에 현재 연도 및 월 업데이트
+            calendarHeader.textContent = `${year}년 ${month + 1}월`;
+
+            // 기존 셀 초기화
+            const rows = Array.from(calendarTable.querySelectorAll("tr"));
+            rows.slice(1).forEach(row => row.remove());
+
+            // 새로운 셀 추가
+            let html = "<tr>";
+            for (let i = 0; i < firstDay; i++) {
+                html += "<td></td>";
+            }
+
+            for (let date = 1; date <= lastDate; date++) {
+                if ((firstDay + date - 1) % 7 === 0 && date > 1) {
+                    html += "</tr><tr>";
+                }
+                const currentFullDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+                html += `<td data-date="${currentFullDate}" style="cursor: pointer;">${date}</td>`;
+            }
+
+            html += "</tr>";
+            calendarTable.innerHTML += html;
+
+            // 일정 렌더링
+            renderEvents(year, month);
+            
+            // 이번 달 일정 목록 업데이트
+            updateMonthlySchedule(year, month);
+
+            // 버튼 이벤트 설정
+            document.querySelector(".prev-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                renderCalendar();
+            };
+
+            document.querySelector(".next-month").onclick = () => {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                renderCalendar();
+            };
+        }
+
+        // 일정 렌더링 함수
+        function renderEvents(year, month) {
+            const dateEventPositions = {};
+            
+            // 활성화된 일정만 필터링 (학사일정과 진행중인 일정만)
+            const activeEvents = [
+                ...(hideSchoolEvents ? [] : schoolEvents),
+                ...(hideEvents ? [] : events),
+                ...endEvents // 종료된 일정 추가
+            ].sort((a, b) => {
+
+                if (a.type !== b.type) {
+                    // 타입별 우선순위: school > events > ended
+                    const typeOrder = { school: 0, events: 1, ended: 2 };
+                    return typeOrder[a.type] - typeOrder[b.type];
+                }
+                // 같은 타입인 경우 종료일로 정렬
+                return new Date(a.end_date) - new Date(b.end_date);
+            });
+                    
+            activeEvents.forEach(event => {
+            const start_date = new Date(event.start_date);
+            const end_date = new Date(event.end_date);
+            
+            if (start_date.getFullYear() <= year && start_date.getMonth() <= month && 
+            end_date.getFullYear() >= year && end_date.getMonth() >= month) {
+                
+                let availablePosition = checkAvailablePosition(start_date, end_date, dateEventPositions);
+                
+                if (availablePosition !== -1) {
+                    let currentDate = new Date(start_date);
+                    let isFirstWeek = true;
+                    
+                    while (currentDate <= end_date) {
+                        const currentDateStr = currentDate.toISOString().split('T')[0];
+                        const cell = document.querySelector(`td[data-date="${currentDateStr}"]`);
+                        
+                        if (cell) {
+                            const eventElement = document.createElement('div');
+                            eventElement.classList.add('calendar-event');
+                            eventElement.setAttribute('data-id', event.id);
+                           // 일정 타입에 따른 색상 설정
+                            eventElement.style.backgroundColor =
+                                event.type === 'school' ? '#FFD700' :
+                                event.type === 'ended' ? '#D3D3D3' :
+                                '#87CEEB';
+
+                            
+                            eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
+                            
+                            if (isFirstWeek) {
+                                eventElement.textContent = event.content;
+                                eventElement.style.marginLeft = '3px';
+                                eventElement.style.marginRight = start_date.getTime() === end_date.getTime() ? '3px' : '-1px';
+                                isFirstWeek = false;
+                            } else {
+                                eventElement.style.marginLeft = '-1px';
+                                eventElement.style.marginRight = currentDate.getTime() === end_date.getTime() ? '3px' : '-1px';
+                            }
+                            
+                            // 일정 표시 스타일 설정
+                            if (currentDate.getTime() === start_date.getTime()) eventElement.classList.add('event-start');
+                            if (currentDate.getTime() === end_date.getTime()) eventElement.classList.add('event-end');
+                            if (currentDate.getDay() === 6 && currentDate.getTime() !== end_date.getTime()) {
+                                eventElement.classList.add('event-continue');
+                            }
+                            
+                            cell.appendChild(eventElement);
+                            
+                            if (!dateEventPositions[currentDateStr]) {
+                                dateEventPositions[currentDateStr] = [];
+                            }
+                            dateEventPositions[currentDateStr].push(availablePosition);
+                        }
+                        
+                        currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                }
+            }
+        });
+    }
+
+        // 이번 달 일정 목록 업데이트 함수
+        function updateMonthlySchedule(year, month) {
+        // 현재 월의 모든 활성 일정 필터링
+        const currentMonthEvents = [
+            ...(hideSchoolEvents ? [] : schoolEvents),
+            ...(hideEvents ? [] : events),
+            ...endEvents // 종료된 일정 추가
+        ].sort((a, b) => {
+            return new Date(a.end_date) - new Date(b.end_date);
+        }).filter(event => {
+            const eventStart = new Date(event.start_date);
+            const eventEnd = new Date(event.end_date);
+            return (
+            eventStart.getFullYear() === year &&
+            eventStart.getMonth() === month
+            ) || (
+            eventEnd.getFullYear() === year &&
+            eventEnd.getMonth() === month
+            );
+        });
+
+        // 일정 목록 HTML 생성
+        const scheduleList = document.getElementById('schedule-list');
+        scheduleList.innerHTML = `
+            <h3>이번 달 일정</h3>
+            ${currentMonthEvents.reduce((html, event) => {
+            const start_date = new Date(event.start_date);
+            const end_date = new Date(event.end_date);
+            // 시작일과 종료일이 같을 경우 종료일만 표시
+            const dateDisplay = start_date.getTime() === end_date.getTime()
+            ? `${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}.`
+            : `${start_date.getFullYear()}. ${String(start_date.getMonth() + 1).padStart(2, '0')}. ${String(start_date.getDate()).padStart(2, '0')}. ~
+               ${end_date.getFullYear()}. ${String(end_date.getMonth() + 1).padStart(2, '0')}. ${String(end_date.getDate()).padStart(2, '0')}.`;
+
+
+            return `
+                ${html}
+                <div class="schedule-item">
+                ${event.content}<br>
+                ${dateDisplay}
+                </div>
+            `;
+            }, '')}
+        `;
+        }
+
+        // 일정 위치 확인 함수
+        function checkAvailablePosition(start_date, end_date, dateEventPositions) {
+            let currentDate = new Date(start_date);
+            const positions = new Set();
+            
+            while (currentDate <= end_date) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (dateEventPositions[dateStr]) {
+                    dateEventPositions[dateStr].forEach(pos => positions.add(pos));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            if (!positions.has(0)) return 0;
+            if (!positions.has(1)) return 1;
+            return -1;
+        }
+
+        // 초기 달력 렌더링
+        renderCalendar();
+    </script>
+</body>
+</html>

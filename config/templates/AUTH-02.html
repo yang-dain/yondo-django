@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연DO 회원가입</title>
+    <link id="theme-style" rel="stylesheet" href="">
+    <style>
+    </style>
+</head>
+<body>
+    <div class="home-box">
+        <img src="/static/logo-light.png">
+    </div>
+
+    <div class="signup-container">
+        <div class="title">회원가입</div>
+        <form action="/webapp/signup/" method="post">
+            {% csrf_token %}
+            <input type="text" name="name" placeholder="이름" required>
+            <input type="text" name="id" placeholder="아이디" required>
+            <input type="password" name="pw" placeholder="비밀번호" required>
+            <input type="password" name="pw_confirm" placeholder="비밀번호 확인" required>
+            <input type="email" name="email" placeholder="이메일" required>
+            <div style="display: flex; gap: 10px;">
+                <select name="pw_qust" style="flex: 1;" required>
+                    <option value="" disabled selected>선택항목 중 선택</option>
+                    <option value="question1">첫 여행지는?</option>
+                    <option value="question2">가장 기억에 남는 장소는?</option>
+                    <option value="question3">가장 친한 친구 이름은?</option>
+                </select>
+            </div>
+            <input type="text" name="pw_ans" placeholder="답변" required>
+            <button type="submit">회원가입</button>
+        </form>
+    </div>
+    <script>
+        let currentDate = new Date();
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        let mode = 0;
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const styleSheet = document.getElementById('theme-style');
+        const logoImg = document.querySelector('.logo img');
+        
+        if (mode === 1) {
+            styleSheet.href = '../../static/lightmode.css';
+            logoImg.src = '/static/lightmode.png';
+        } else {
+            styleSheet.href = '../../static/darkmode.css';
+            logoImg.src = '/static/darkmode.png';
+        }
+    });
+    </script>
+</body>
+</html>

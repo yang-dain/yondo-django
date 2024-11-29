@@ -23,6 +23,10 @@ def update_schedule_view(request):
     return HttpResponse("School_Event 테이블이 업데이트되었습니다.")
 
 def main(request):
+    user_id = request.session.get('user_id')
+    is_logged_in = request.session.get('is_logged_in', 0)
+    print(f"User ID: {user_id}, Is Logged In: {is_logged_in}")  # 세션 값 확인하려고 잠깐 넣었어용
+    
     try:
         school_events = school_event_list()
         for event in school_events["school_events"]:
@@ -49,11 +53,12 @@ def main(request):
             current_events = json.dumps([])  # 비로그인 사용자의 경우 빈 리스트로 처리
             ended_events = json.dumps([])
 
-        return render(request, 'DASH-01-light.html', {
+        return render(request, 'DASH-01.html', {
             'school_events': json.dumps(school_events),
             'current_events' : current_events,
-            'ended_events' : ended_events}
-        )
+            'ended_events' : ended_events, 
+            'is_logged_in': request.session.get('is_logged_in', 0)
+        })
 
     except KeyError as e:
         print(f"KeyError occurred: {e}")
@@ -76,6 +81,7 @@ def login(request):
             if user.pw == password:  # 평문 비밀번호 비교
                 # 비밀번호 일치 -> 로그인 처리
                 request.session['user_id'] = user.id  # 세션에 사용자 ID 저장
+                request.session['is_logged_in'] = 1 # 세션 로그인 상태
                 messages.success(request, '로그인 성공!')
                 return redirect('webapp:main')  # 로그인 후 메인 페이지로 리디렉션
             else:
@@ -85,7 +91,16 @@ def login(request):
             # 아이디가 존재하지 않는 경우
             messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
 
-    return render(request, 'AUTH-01-light.html')
+    return render(request, 'AUTH-01.html')
+
+def logout(request):
+    try:
+        del request.session['user_id']
+        del request.session['is_logged_in']
+        messages.success(request, '로그아웃 되었습니다.')
+    except KeyError:
+        pass
+    return redirect('webapp:main')
 
 def signup(request):
     # AUTH-02-light.html에서 입력값 받아옴
@@ -124,7 +139,7 @@ def signup(request):
             messages.error(request, f'회원가입 중 오류가 발생했습니다: {e}')
             return render(request, 'AUTH-02-light.html')
 
-    return render(request, 'AUTH-02-light.html')
+    return render(request, 'AUTH-02.html')
 
 
 def find_id(request):
@@ -143,14 +158,14 @@ def find_id(request):
             messages.success(request, f"{name}님의 아이디는 {user_id}입니다.")
 
             # 아이디를 알림 팝업으로 표시하도록 메시지 전달
-            return render(request, 'AUTH-01-light.html')
+            return render(request, 'AUTH-01.html')
 
         except Custom_user.DoesNotExist:
             # 이름이나 이메일이 일치하지 않으면 오류 메시지
             messages.error(request, '입력한 정보와 일치하는 아이디가 없습니다.')
-            return render(request, 'AUTH-03-light.html')
+            return render(request, 'AUTH-03.html')
 
-    return render(request, 'AUTH-03-light.html')
+    return render(request, 'AUTH-03.html')
 
 def find_pw(request):
     if request.method == "POST":
@@ -173,7 +188,7 @@ def find_pw(request):
             # 아이디가 존재하지 않는 경우
             messages.error(request, '아이디가 존재하지 않습니다.')
 
-    return render(request, 'AUTH-04-light.html')
+    return render(request, 'AUTH-04.html')
 
 def reset_pw(request, userid):
     if request.method == "POST":
@@ -188,12 +203,12 @@ def reset_pw(request, userid):
             # 현재 비밀번호 확인
             if user.pw != cur_pw:
                 messages.error(request, '현재 비밀번호가 일치하지 않습니다.')
-                return render(request, 'AUTH-05-light.html')
+                return render(request, 'AUTH-05.html')
 
             # 새 비밀번호와 확인 비밀번호가 같은지 확인
             if new_pw != new_pw_confirm:
                 messages.error(request, '새 비밀번호가 일치하지 않습니다.')
-                return render(request, 'AUTH-05-light.html')
+                return render(request, 'AUTH-05.html')
 
             # 새 비밀번호 업데이트
             user.pw = new_pw
@@ -206,7 +221,7 @@ def reset_pw(request, userid):
             messages.error(request, '사용자를 찾을 수 없습니다.')
             return redirect('webapp:find_pw')  # 비밀번호 찾기 페이지로 이동
 
-    return render(request, 'AUTH-05-light.html')
+    return render(request, 'AUTH-05.html')
 
 
 def todo_view(request): #일정 목록
@@ -221,7 +236,7 @@ def todo_view(request): #일정 목록
     events_data = event_list(custom_user)
 
 
-    return render(request, 'TODO-01-light.html', {
+    return render(request, 'TODO-01.html', {
         'school_events': json.dumps(event_data['school_events']), # 학사일정
         'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
@@ -305,7 +320,7 @@ def post(request): #일정 추가
             'ended_events' : json.dumps(events_data['ended_events']),}
 
 
-    return render(request, 'TODO-02-light.html', context)
+    return render(request, 'TODO-02.html', context)
 
 
 def todo_edit(request): #일정 변경/삭제
@@ -335,7 +350,7 @@ def todo_edit(request): #일정 변경/삭제
         form = PostForm(instance=event)
 
     context = {'form': form, 'event': event, 'user_id': user_id}
-    return render(request, 'TODO-03-light.html', context)
+    return render(request, 'TODO-03.html', context)
 
 def ui_list(request): #내 일정 관리
     return render(request, 'SET-02-light.html')

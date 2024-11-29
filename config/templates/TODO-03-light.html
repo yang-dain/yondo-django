@@ -86,7 +86,7 @@
 
         .calendar {
             width: 700px;
-            height: 680px;
+            height: 650px;
             padding: 20px;
             background-color: white;
             box-sizing: border-box;
@@ -331,7 +331,7 @@
         }
 
         .schedule-display {
-            height: 120px; 
+            height: 170px;
             overflow-y: auto; /* 세로 스크롤 활성화 */
             background-color: white;
             padding: 10px;
@@ -492,7 +492,6 @@
                                 <span id="modify-end-date">선택해주세요</span>
                             </div>
                         </div>
-                        <button id="change-dates-button">날짜 변경</button>
                         </div>
                         <div class="input-group">
                             <label>일정이름</label>
@@ -517,26 +516,43 @@
         </div>
     </div>
 
+    <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+
+    <script id="events" type="application/json">
+        {{ current_events|safe }}
+    </script>
+
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
     <script>
         
         let currentDate = new Date();
         // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
         let hideSchoolEvents = 0;
         let hideEvents = 0;
+        let hideEndEvents = 0;
 
-        let schoolEvents = [
-            { id: 1, start_date: "2024-11-04", end_date: "2024-11-04", title: "학사일정1", content: "1", type: "school" },
-            { id: 2, start_date: "2024-11-09", end_date: "2024-11-11", title: "학사일정2", content: "2", type: "school" }
-        ];
+        function safeParseJSON(elementId, propertyName) {
+            const jsonContent = document.getElementById(elementId)?.textContent;
+            console.log(`Content of #${elementId}:`, jsonContent);
+            if (!jsonContent?.trim()) return []; // 데이터가 없으면 빈 배열 반환
+            try {
+                const parsed = JSON.parse(jsonContent);
+                return propertyName ? (parsed[propertyName] || []) : parsed; // 특정 속성 반환 또는 전체 객체 반환
+            } catch (error) {
+                console.error(`Error parsing JSON from element: ${elementId}`, error);
+                return [];
+            }
+        }
 
-        let events = [
-            { id: 3, start_date: "2024-11-14", end_date: "2024-11-16", title: "진행중일정1", content: "3", type: "current" },
-            { id: 4, start_date: "2024-11-13", end_date: "2024-11-17", title: "진행중일정2", content: "4", type: "current" }
-        ];
+        const endEvents = Object.values(safeParseJSON('endEvents'));
+        const events = Object.values(safeParseJSON('events')).flat() || [];
+        const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
 
-        let endEvents = [
-            { id: 5, start_date: "2024-11-29", end_date: "2024-12-04", title: "종료된일정5", content: "5", type: "ended" }
-        ];
 
 
         // 선택된 날짜 저장 변수
@@ -597,9 +613,20 @@
             
             const activeEvents = [
                 ...(hideSchoolEvents ? [] : schoolEvents),
-                ...(hideEvents ? [] : events)
+                ...(hideEvents ? [] : events),
+                ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
             ];
-            activeEvents.sort((a, b) => a.id - b.id);
+            activeEvents.sort((a, b) => {
+
+                if (a.type !== b.type) {
+                // 타입별 우선순위: school > events > ended
+                const typeOrder = { school: 0, current: 1, ended: 2 };
+                return typeOrder[a.type] - typeOrder[b.type];
+                 }
+
+                  return new Date(a.end_date) - new Date(b.end_date);
+
+            });
 
             activeEvents.forEach(event => {
                 const start_date = new Date(event.start_date);
@@ -628,7 +655,10 @@
                                 const eventElement = document.createElement('div');
                                 eventElement.classList.add('calendar-event');
                                 eventElement.setAttribute('data-id', event.id);
-                                eventElement.style.backgroundColor = event.type === 'school' ? '#FFD700' : '#87CEEB';
+                                eventElement.style.backgroundColor =
+                                    event.type === 'school' ? '#FFD700' :
+                                    event.type === 'ended' ? '#D3D3D3' :
+                                    '#87CEEB';
                                 
                                 eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
                                 
@@ -719,130 +749,66 @@
             if (!positions.has(1)) return 1;
             return -1;
         }
-
-        // 날짜 클릭 이벤트 설정
-        function setupDateClickHandlers() {
-            document.querySelectorAll('td[data-date]').forEach(cell => {
-                cell.removeEventListener('click', handleDateClick); // 기존 클릭 이벤트 핸들러 제거
-                cell.addEventListener('click', handleDateClick); // 새로운 클릭 이벤트 핸들러 설정
-            });
-        }
-
-        function handleDateClick(e) {
-            e.stopPropagation();
-            const clickedDate = e.currentTarget.getAttribute('data-date');
-            
-            // 기존 선택된 날짜 스타일 제거
-            document.querySelectorAll('td.selected-date').forEach(td => {
-                td.classList.remove('selected-date');
-            });
-            
-            // 새로 클릭된 날짜에 선택 스타일 추가
-            e.currentTarget.classList.add('selected-date');
-
-            // 클릭된 날짜의 일정 표시
-            const clickedDateObj = new Date(clickedDate);
-            clickedDateObj.setHours(0, 0, 0, 0);
-            
-            const allEvents = [...schoolEvents, ...events, ...endEvents];
-            const dateEvents = allEvents.filter(event => {
-                const eventStart = new Date(event.start_date);
-                const eventEnd = new Date(event.end_date);
-                eventStart.setHours(0, 0, 0, 0);
-                eventEnd.setHours(0, 0, 0, 0);
-                return clickedDateObj >= eventStart && clickedDateObj <= eventEnd;
-            });
-
-            // 일정 목록 표시 업데이트
+         //일정 목록 렌더링 함수
+       function renderCurrentEvents(events) {
             const scheduleDisplay = document.getElementById('date-schedules');
-            scheduleDisplay.innerHTML = dateEvents.map(event => `
-                <div class="schedule-item ${selectedEventId !== null && event.id === selectedEventId ? 'selected-schedule' : ''}" data-id="${event.id}">
+
+            // 'current' 타입 일정만 필터링
+            const currentEvents = events.filter(event => event.type === 'current');
+            // start_date 기준으로 정렬, start_date가 같으면 end_date 기준으로 정렬
+            currentEvents.sort((a, b) => {
+                const startDateDiff = new Date(a.start_date) - new Date(b.start_date);
+                if (startDateDiff !== 0) {
+                    return startDateDiff; // start_date가 다르면 이 값으로 정렬
+                }
+                return new Date(a.end_date) - new Date(b.end_date); // start_date가 같으면 end_date로 정렬
+            });
+
+            // 필터링된 일정만 렌더링
+            scheduleDisplay.innerHTML = currentEvents.map(event => `
+                <div class="schedule-item ${selectedEventId !== null && event.id === selectedEventId ? 'selected-schedule' : ''}"
+                     data-id="${event.id}">
                     <div class="event-header">
                         <span>${event.title}</span>
-                        <span class="event-type-label">${event.type === 'school' ? '학사일정' : 
-                                                    event.type === 'ended' ? '종료' : '진행중'}</span>
+                        <span class="event-type-label">진행중</span>
                     </div>
                     <div class="event-dates">${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}</div>
                 </div>
             `).join('');
 
-            // 일정 클릭 이벤트 핸들러 다시 설정
-            setupScheduleItemClickHandlers();
-
-            // 날짜 변경 모드일 때의 처리
-            if (selectedEventId && changingDates) {
-                if (!modifyStartDate || (modifyStartDate && modifyEndDate)) {
-                    modifyStartDate = clickedDate;
-                    modifyEndDate = null;
-                    document.getElementById('modify-start-date').textContent = formatDate(clickedDate);
-                    document.getElementById('modify-end-date').textContent = '선택해주세요';
-                } else {
-                    if (new Date(clickedDate) >= new Date(modifyStartDate)) {
-                        modifyEndDate = clickedDate;
-                        document.getElementById('modify-end-date').textContent = formatDate(clickedDate);
-                        changingDates = false;
-                    }
-                }
-            } else {
-                if (!selectedStartDate || (selectedStartDate && selectedEndDate)) {
-                    selectedStartDate = clickedDate;
-                    selectedEndDate = null;
-                    if (document.getElementById('start-date')) {
-                        document.getElementById('start-date').textContent = formatDate(clickedDate);
-                        document.getElementById('end-date').textContent = '선택해주세요';
-                    }
-                } else {
-                    if (new Date(clickedDate) >= new Date(selectedStartDate)) {
-                        selectedEndDate = clickedDate;
-                        if (document.getElementById('end-date')) {
-                            document.getElementById('end-date').textContent = formatDate(clickedDate);
-                        }
-                    }
-                }
-            }
-        }
-
-        // 일정 클릭 이벤트 설정
-        function setupScheduleItemClickHandlers() {
-            document.querySelectorAll('.schedule-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    const eventId = parseInt(e.currentTarget.getAttribute('data-id'));
-                    const allEvents = [...schoolEvents, ...events, ...endEvents];
-                    let event = allEvents.find(ev => ev.id === eventId);
-
-                    if (event) {
-                        if (selectedEventId === eventId) {
-                            resetModifyForm();
-                            e.currentTarget.classList.remove('selected-schedule');
-                        } else {
-                            selectedEventId = eventId;
-                            modifyStartDate = event.start_date;
-                            modifyEndDate = event.end_date;
-
-                            document.getElementById('schedule-title-input').value = event.title;
-                            document.getElementById('schedule-content-input').value = event.content;
-                            document.getElementById('modify-start-date').textContent = formatDate(event.start_date);
-                            document.getElementById('modify-end-date').textContent = formatDate(event.end_date);
-                            
-                            // 종료 체크박스 상태 설정
-                            const endCheckbox = document.getElementById('end-status');
-                            if (event.type === 'school') {
-                                endCheckbox.disabled = true;
-                                endCheckbox.checked = false;
-                            } else {
-                                endCheckbox.disabled = false;
-                                endCheckbox.checked = event.type === 'ended';
-                            }
-
-                            document.querySelectorAll('.schedule-item').forEach(si => {
-                                si.classList.remove('selected-schedule');
-                            });
-                            e.currentTarget.classList.add('selected-schedule');
-                        }
-                    }
+            // 렌더링 후 각 schedule-item에 클릭 이벤트 추가
+            const scheduleItems = document.querySelectorAll('.schedule-item');
+            scheduleItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    handleScheduleClick(item, events);
                 });
             });
         }
+        // 클릭 이벤트 처리 함수
+        function handleScheduleClick(item, events) {
+            const eventId = parseInt(item.getAttribute('data-id'));
+            const selectedEvent = events.find(event => event.id === eventId);
+
+            if (selectedEvent) {
+                // HTML 요소 업데이트
+                document.getElementById('modify-start-date').textContent = formatDate(selectedEvent.start_date);
+                document.getElementById('modify-end-date').textContent = formatDate(selectedEvent.end_date);
+                document.getElementById('schedule-title-input').value = selectedEvent.title || '';
+                document.getElementById('schedule-content-input').value = selectedEvent.memo || '';
+                document.getElementById('end-status').checked = selectedEvent.is_completed;
+
+                // 선택된 상태 업데이트
+                document.querySelectorAll('.schedule-item').forEach(i => i.classList.remove('selected-schedule'));
+                item.classList.add('selected-schedule');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function (){
+                renderCurrentEvents(events);
+        });
+
+
+
 
         // 수정 폼 초기화
         function resetModifyForm() {
@@ -920,13 +886,6 @@
 
         let changingDates = false;
 
-        document.getElementById('change-dates-button').addEventListener('click', () => {
-            changingDates = true;
-            modifyStartDate = null;
-            modifyEndDate = null;
-            document.getElementById('modify-start-date').textContent = '선택해주세요';
-            document.getElementById('modify-end-date').textContent = '선택해주세요';
-        });
 
         // 삭제 버튼 이벤트
         document.getElementById('delete-schedule-button').addEventListener('click', () => {
