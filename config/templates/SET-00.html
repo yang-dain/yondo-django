@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>설정 페이지</title>
+    <link rel="stylesheet" href="../../static/styles2-light.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        .body{
+            min-width: 100vh
+        }
+
+        .logo-container a img {
+            width: 100%; 
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .divider {
+            margin-top: 60px;
+            margin-bottom: 20px;
+        }
+
+        .logo-container a:hover img {
+            opacity: 0.8; 
+            transform: scale(1.05); 
+        }
+    
+        .logout {
+            position: fixed; 
+            z-index: 9999; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                width: 90%;
+                max-width: 700px;
+                padding: 35px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container {
+                width: 80%;
+                max-width: 900px;
+                padding: 40px;
+            }
+
+            .profile {
+                width: 200px;
+                height: 200px;
+                font-size: 18px;
+            }
+
+            .header {
+                font-size: 28px;
+                padding: 25px;
+            }
+
+            .info {
+                font-size: 18px;
+            }
+
+            .button {
+                font-size: 18px;
+                padding: 15px;
+            }
+
+            .logout {
+                width: 140px;
+                height: 50px;
+                font-size: 16px;
+            }
+
+            .logo img {
+                width: 90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/logout/" class="logo">
+                <img src="/static/lightmode.png" alt="Logo" />
+            </a>
+            <a href="/webapp/mypage/" class="logout">로그아웃</a>
+        </div>
+    </div>
+    
+    <div class="divider"></div>
+
+    <div class="container">
+        <div class="header">설정</div>
+            
+        <div class="profile">
+            <img src="/static/gray_logo.png" alt="">
+        </div>
+
+        <div class="info">
+            <span id="userName">이름</span> 님<br>
+            시작한 지 <span id="daysElapsed">( )</span>일 되셨군요!<br>
+            <span id="completedSchedules">( )</span>개의 일정을 완료하셨군요!<br>
+            해야 하는 <span id="remainingSchedules">( )</span>개의 일정이 있군요!
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 20px; gap: 20px;">
+            <a href="/webapp/" class="button">내 정보 관리</a>
+            <a href="/webapp/mypage/event" class="button">내 일정 관리</a>
+        </div>
+        
+    </div>
+
+    <script>
+        // 사용자 정보와 일정을 동적으로 추가
+        document.getElementById("userName").textContent = "홍길동"; // 실제 사용자 이름으로 변경
+        document.getElementById("daysElapsed").textContent = "30"; // 실제 날짜로 변경
+        document.getElementById("completedSchedules").textContent = "20"; // 완료한 일정 개수
+        document.getElementById("remainingSchedules").textContent = "5"; // 남은 일정 개수
+    </script>
+</body>
+</html>

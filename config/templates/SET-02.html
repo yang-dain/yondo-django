@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/styles2-light.css">
+    <title>UI 설정</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 상단 헤더 -->
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/logout/" class="logo">
+                <img src="/static/lightmode.png" alt="Logo" />
+            </a>
+            <a href="/webapp/mypage/" class="logout">로그아웃</a>
+        </div>
+    </div>
+
+    <!-- 구분선 -->
+    <div class="divider"></div>
+
+    <!-- 알림 설정 컨테이너 -->
+    <div class="container">
+        <div class="header">UI 설정</div>
+        <table>
+            <tr>
+                <th>알림 종류</th>
+                <th>설정</th>
+            </tr>
+            <tr>
+                <td>학사 일정</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+            <tr>
+                <td>종료된 일정</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+            <tr>
+                <td>다크모드</td>
+                <td><button onclick="toggleAlert(this)">켜기</button></td>
+            </tr>
+        </table>
+        <button style="margin-top: 20px;" onclick="saveSettings()">확인</button>
+    </div>
+
+    <script>
+        // 알림 켜기/끄기 토글
+        function toggleAlert(button) {
+            if (button.innerText === "켜기") {
+                button.innerText = "끄기";
+            } else {
+                button.innerText = "켜기";
+            }
+        }
+
+        // 설정 저장
+        function saveSettings() {
+            alert("설정이 저장되었습니다.");
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/styles2-light.css">
+    <title>내 정보 관리</title>
+    <style>
+        
+
+        
+
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/logout/" class="logo">
+                <img src="/static/lightmode.png" alt="Logo" />
+            </a>
+            <a href="/webapp/mypage/" class="logout">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="container">
+        <div class="header">내 정보 관리</div>
+            
+        <table class="table">
+            <tr>
+                <td><strong>이름</strong></td>
+                <td>홍길동</td>
+            </tr>
+            <tr>
+                <td><strong>아이디</strong></td>
+                <td>user123</td>
+            </tr>
+            <tr>
+                <td><strong>이메일</strong></td>
+                <td>example@example.com</td>
+            </tr>
+        </table>
+
+        <div class="button-container">
+            <a href="/webapp/reset_pw/<str:userid>" class="button">비밀번호 변경</a>
+            <a href="withdraw-light.html" class="button">회원 탈퇴</a>
+        </div>
+    </div>
+</body>
+</html>

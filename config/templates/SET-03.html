@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../../static/styles2-light.css">
+    <title>UI 설정</title>
+    
+    <style>
+        .body{
+            min-width: 70vh;
+        }
+        .button {
+            margin: 10px 0;
+            width: 80%;
+            max-width: 300px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/logout/" class="logo">
+                <img src="/static/lightmode.png" alt="Logo" />
+            </a>
+            <a href="/webapp/mypage/" class="logout">로그아웃</a>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="container">
+        <div class="header">내 일정 관리</div>
+        <a href="/webapp/event/"><button class="button">일정 목록</button></a>
+        <a href="/webapp/event/create/"><button class="button">일정 추가</button></a>
+        <a href="/webapp/event/edit/"><button class="button">일정 변경&삭제</button></a>
+        <a href="/webapp/event/ui"><button class="button">일정 UI 설정</button></a>
+    </div>
+</body>
+</html>
