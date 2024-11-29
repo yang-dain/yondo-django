@@ -82,7 +82,6 @@ def login(request):
                 # 비밀번호 일치 -> 로그인 처리
                 request.session['user_id'] = user.id  # 세션에 사용자 ID 저장
                 request.session['is_logged_in'] = 1 # 세션 로그인 상태
-                messages.success(request, '로그인 성공!')
                 return redirect('webapp:main')  # 로그인 후 메인 페이지로 리디렉션
             else:
                 # 비밀번호 불일치
@@ -212,8 +211,9 @@ def reset_pw(request):
             custom_user.pw = new_pw
             custom_user.save()
 
-            del request.session['user_id']
+            request.session.flush() # 세션 초기화
             messages.success(request, '비밀번호가 성공적으로 변경되었습니다.')
+            messages.success(request, '다시 로그인 해주세요.')
             return redirect('webapp:login')  # 로그인 페이지로 이동
 
         except Custom_user.DoesNotExist:
