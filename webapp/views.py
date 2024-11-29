@@ -3,7 +3,7 @@ from lib2to3.fixes.fix_input import context
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from .models import Custom_user
+from .models import Custom_user,Event
 import json
 from .event import event_list, school_event_list
 from django.shortcuts import render, get_object_or_404, redirect
@@ -91,7 +91,7 @@ def login(request):
             # 아이디가 존재하지 않는 경우
             messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
 
-    return render(request, 'AUTH-01.html')
+    return render(request, 'AUTH-01-light.html')
 
 def logout(request):
     try:
@@ -300,13 +300,10 @@ def post(request): #일정 추가
         event["type"] = "current"
         event.pop("memo", None)
 
-        print('current_events')
-
     for event in events_data["ended_events"]:
         event["title"] = event.pop("name")
         event["type"] = "ended"
         event.pop("memo", None)
-        print('ended_events')
 
 
     school_events = school_event_list()
@@ -336,34 +333,93 @@ def post(request): #일정 추가
     return render(request, 'TODO-02.html', context)
 
 
-def todo_edit(request): #일정 변경/삭제
+def edit(request, event_id=None):  # 일정 변경/삭제
     user_id = request.session.get('user_id')
+    event = None
 
     if not user_id:
         return redirect('webapp:login')
 
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+    events_data = event_list(custom_user)
 
-    if request.method == 'POST':
-        # '삭제' 요청
-        if 'delete' in request.POST:
-            event.delete()
-            messages.success(request, "일정이 삭제되었습니다.")
-            return redirect('webapp:post')
+    for event in events_data["current_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "current"
 
-        # '변경' 요청
+    for event in events_data["ended_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "ended"
+
+    school_events = school_event_list()
+    for event in school_events["school_events"]:
+        event["title"] = event.pop("name")
+        event["type"] = "school"
+
+    if request.method == "GET":
+        if event_id:
+            event = get_object_or_404(Event, id=event_id)
+        else:
+            event = None
+
+        # 모델 인스턴스 변환 로직
+        if isinstance(event, dict):
+            event = Event(
+                id=event.get('id'),
+                start_date=event.get('start_date'),
+                end_date=event.get('end_date'),
+                name=event.get('title')
+            )
+
+        form = PostForm(instance=event)
+        context = {
+            'form': form,
+            'user_id': user_id,
+            'school_events': json.dumps(school_events),
+            'current_events': json.dumps(events_data['current_events']),
+            'ended_events': json.dumps(events_data['ended_events']),
+        }
+        return render(request, 'TODO-03.html', context)
+
+    if request.method == "POST":
+        event_id = request.POST.get('event_id')
+        if event_id:
+            event = get_object_or_404(Event, id=event_id)
+
+        # 모델 인스턴스 변환 로직
+        if isinstance(event, dict):
+            event = Event(
+                id=event.get('id'),
+                start_date=event.get('start_date'),
+                end_date=event.get('end_date'),
+                name=event.get('title')
+            )
+
+        if 'delete' in request.POST:  # 삭제 요청
+            if event:
+                event.delete()
+                messages.success(request, "일정이 삭제되었습니다.")
+            return redirect('webapp:edit')
+
+        # 수정 요청 처리
         form = PostForm(request.POST, instance=event)
         if form.is_valid():
             form.save()
-            messages.success(request, "일정이 수정되었습니다.")
-            return redirect('webapp:post')
-        else:
-            messages.error(request, '유효하지 않은 데이터입니다.')
-    else:
-        # 기존 데이터를 폼으로 전달
-        form = PostForm(instance=event)
+            messages.success(request, "일정이 변경되었습니다.")
+            return redirect('webapp:edit')
 
-    context = {'form': form, 'event': event, 'user_id': user_id}
+    # POST 요청 처리 후 유효하지 않은 폼 처리
+    form = PostForm(instance=event)
+    context = {
+        'form': form,
+        'user_id': user_id,
+        'school_events': json.dumps(school_events),
+        'current_events': json.dumps(events_data['current_events']),
+        'ended_events': json.dumps(events_data['ended_events']),
+    }
     return render(request, 'TODO-03.html', context)
 
+
+
 def ui_list(request): #내 일정 관리
-    return render(request, 'SET-02.html')
+    return render(request, 'SET-02-light.html')

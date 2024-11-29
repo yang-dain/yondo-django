@@ -104,69 +104,49 @@
                     <h3>일정 변경/삭제</h3>
                     <div class="schedule-display" id="date-schedules"></div>
                     <div class="add-schedule-container">
-                        <div class="date-display">
-                            <div class="date-item">
-                                <span>시작 날짜:</span>
-                                <span id="modify-start-date">선택해주세요</span>
+                        <form method="post" action="{% url 'webapp:edit' %}">
+                            {% csrf_token %}
+                            <input type="hidden" id="selected-event-id" name="event_id" value="">
+                            <div class="date-display">
+                             <div class="date-item">
+                                <label for="start-date">시작 날짜:</label>
+                                {{ form.start_date }}
                             </div>
                             <div class="date-item">
-                                <span>종료 날짜:</span>
-                                <span id="modify-end-date">선택해주세요</span>
+                                <label for="end-date">종료 날짜:</label>
+                                {{ form.end_date }}
                             </div>
-                        </div>
-                        <button id="change-dates-button">날짜 변경</button>
-                        </div>
-                        <div class="input-group">
-                            <label>일정이름</label>
-                            <input type="text" id="schedule-title" placeholder="변경할 일정을 선택하세요...">
-                        </div>
-                        <div class="input-group">
-                            <label>메모</label>
-                        <textarea id="schedule-content" rows="4" placeholder="변경할 일정을 선택하세요..."></textarea>
-                        <div class="button-group">
+                            </div>
+                            <div class="input-group">
+                                <label for="schedule-title">일정이름</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="input-group">
+                                <label for="schedule-content">메모</label>
+                                {{ form.memo }}
+                            </div>
+                           <div class="button-group">
                             <div class="status-group">
-                                <label class="end-status-label">
-                                    <span>종료</span>
-                                    <input type="checkbox" id="end-status" disabled>
-                                </label>
+                                <label for="is-completed-label">종료</label>
+                                {{ form.is_completed }}
                             </div>
-                            <button id="add-schedule-button">변경</button>
-                            <button id="delete-schedule-button">삭제</button>
-                        </div>
-                    </div>
+                            <button type="submit" name="save" id="add-schedule-button">변경</button>
+                            <button type="submit" name="delete" id="delete-schedule-button">삭제</button>
+                           </div>
+                        </form>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        
-        let currentDate = new Date();
-        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
-        let hideSchoolEvents = 0;
-        let hideEvents = 0;
-
-        let schoolEvents = [
-            { id: 1, start_date: "2024-11-04", end_date: "2024-11-04", title: "학사일정1", content: "1", type: "school" },
-            { id: 2, start_date: "2024-11-09", end_date: "2024-11-11", title: "학사일정2", content: "2", type: "school" }
-        ];
-
-        let events = [
-            { id: 3, start_date: "2024-11-14", end_date: "2024-11-16", title: "진행중일정1", content: "3", type: "current" },
-            { id: 4, start_date: "2024-11-13", end_date: "2024-11-17", title: "진행중일정2", content: "4", type: "current" }
-        ];
-
-        let endEvents = [
-            { id: 5, start_date: "2024-11-29", end_date: "2024-12-04", title: "종료된일정5", content: "5", type: "ended" }
-        ];
-
-        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+                // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
         let mode = 1;
 
         document.addEventListener('DOMContentLoaded', function() {
         const styleSheet = document.getElementById('theme-style');
         const logoImg = document.querySelector('.logo img');
-        
+
         if (mode === 1) {
             styleSheet.href = '/static/styles1-light.css';
             logoImg.src = '/static/lightmode.png';
@@ -175,6 +155,46 @@
             logoImg.src = '/static/darkmode.png';
         }
     });
+    </script>
+
+     <script id="schoolEvents" type="application/json">
+        {{ school_events|safe }}
+    </script>
+
+    <script id="events" type="application/json">
+        {{ current_events|safe }}
+    </script>
+
+    <script id="endEvents" type="application/json">
+        {{ ended_events|safe }}
+    </script>
+
+    <script>
+
+        let currentDate = new Date();
+        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
+        let hideSchoolEvents = 0;
+        let hideEvents = 0;
+        let hideEndEvents = 0;
+
+        function safeParseJSON(elementId, propertyName) {
+            const jsonContent = document.getElementById(elementId)?.textContent;
+            console.log(`Content of #${elementId}:`, jsonContent);
+            if (!jsonContent?.trim()) return []; // 데이터가 없으면 빈 배열 반환
+            try {
+                const parsed = JSON.parse(jsonContent);
+                return propertyName ? (parsed[propertyName] || []) : parsed; // 특정 속성 반환 또는 전체 객체 반환
+            } catch (error) {
+                console.error(`Error parsing JSON from element: ${elementId}`, error);
+                return [];
+            }
+        }
+
+        const endEvents = Object.values(safeParseJSON('endEvents'));
+        const events = Object.values(safeParseJSON('events')).flat() || [];
+        const schoolEvents = Object.values(safeParseJSON('schoolEvents')).flat() || [];
+
+
 
         // 선택된 날짜 저장 변수
         let selectedStartDate = null;
@@ -184,7 +204,7 @@
         let selectedEventId = null;
 
         // 달력 렌더링 함수
-        function renderCalendar() {
+       function renderCalendar() {
             const calendarTable = document.querySelector(".calendar table");
             const calendarHeader = document.querySelector(".calendar-header span");
 
@@ -228,135 +248,6 @@
             };
         }
 
-        // 일정 렌더링 함수
-        function renderEvents(year, month) {
-            const dateEventPositions = {};
-            
-            const activeEvents = [
-                ...(hideSchoolEvents ? [] : schoolEvents),
-                ...(hideEvents ? [] : events)
-            ];
-            activeEvents.sort((a, b) => a.id - b.id);
-
-            activeEvents.forEach(event => {
-                const start_date = new Date(event.start_date);
-                const end_date = new Date(event.end_date);
-                
-                if (start_date.getFullYear() <= year && start_date.getMonth() <= month && 
-                end_date.getFullYear() >= year && end_date.getMonth() >= month) {
-                    
-                    let availablePosition = checkAvailablePosition(start_date, end_date, dateEventPositions);
-                    
-                    if (availablePosition !== -1) {
-                        let currentDate = new Date(start_date);
-                        let isFirstWeek = true;
-                        
-                        while (currentDate <= end_date) {
-                            const currentDateStr = currentDate.toISOString().split('T')[0];
-                            const cell = document.querySelector(`td[data-date="${currentDateStr}"]`);
-                            
-                            if (cell) {
-                                const isNewWeek = currentDate.getDay() === 0 || currentDate.getTime() === start_date.getTime();
-                                const isLastDay = currentDate.getTime() === end_date.getTime();
-                                const isLastDayOfWeek = currentDate.getDay() === 6;
-                                const isMonthChanged = currentDate.getMonth() !== start_date.getMonth();
-                                const isYearChanged = currentDate.getFullYear() !== start_date.getFullYear();
-
-                                const eventElement = document.createElement('div');
-                                eventElement.classList.add('calendar-event');
-                                eventElement.setAttribute('data-id', event.id);
-                                eventElement.style.backgroundColor = event.type === 'school' ? '#FFD700' : '#87CEEB';
-                                
-                                eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
-                                
-                                if (isFirstWeek) {
-                                    eventElement.textContent = event.title;
-                                    eventElement.style.marginLeft = start_date.getTime() === end_date.getTime() ? '3px' : '3px';
-                                    eventElement.style.marginRight = start_date.getTime() === end_date.getTime() ? '3px' : '-1px';
-                                    isFirstWeek = false;
-                                } else if (isLastDay) {
-                                    eventElement.style.marginLeft = '-1px';
-                                    eventElement.style.marginRight = '3px';
-                                } else {
-                                    eventElement.style.marginLeft = '-1px';
-                                    eventElement.style.marginRight = '-1px';
-                                }
-                                
-                                if (isNewWeek) eventElement.classList.add('event-start');
-                                if (isLastDayOfWeek && !isLastDay) eventElement.classList.add('event-continue');
-                                if (isLastDay) eventElement.classList.add('event-end');
-                                if (isMonthChanged || isYearChanged) eventElement.classList.add('event-continue');
-                                
-                                cell.appendChild(eventElement);
-                                
-                                if (!dateEventPositions[currentDateStr]) {
-                                    dateEventPositions[currentDateStr] = [];
-                                }
-                                dateEventPositions[currentDateStr].push(availablePosition);
-                            }
-                            
-                            currentDate.setDate(currentDate.getDate() + 1);
-                        }
-                    }
-                }
-            });
-        }
-
-        // 일정 타입 변경 이벤트 설정
-        function setupEventTypeHandlers() {
-            document.querySelectorAll('.event-type-select').forEach(select => {
-                select.addEventListener('change', (e) => {
-                    const eventId = parseInt(e.target.getAttribute('data-id'));
-                    const newType = e.target.value;
-                    
-                    // Find and remove event from current array
-                    let event;
-                    [schoolEvents, events, endEvents].forEach(arr => {
-                        const index = arr.findIndex(e => e.id === eventId);
-                        if (index !== -1) {
-                            event = arr[index];
-                            arr.splice(index, 1);
-                        }
-                    });
-
-                    if (event) {
-                        event.type = newType;
-                        // Add to new array based on type
-                        switch(newType) {
-                            case 'school':
-                                schoolEvents.push(event);
-                                break;
-                            case 'current':
-                                events.push(event);
-                                break;
-                            case 'ended':
-                                endEvents.push(event);
-                                break;
-                        }
-                        renderCalendar();
-                    }
-                });
-            });
-        }
-
-        // 일정 위치 확인 함수
-        function checkAvailablePosition(start_date, end_date, dateEventPositions) {
-            let currentDate = new Date(start_date);
-            const positions = new Set();
-            
-            while (currentDate <= end_date) {
-                const dateStr = currentDate.toISOString().split('T')[0];
-                if (dateEventPositions[dateStr]) {
-                    dateEventPositions[dateStr].forEach(pos => positions.add(pos));
-                }
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
-            
-            if (!positions.has(0)) return 0;
-            if (!positions.has(1)) return 1;
-            return -1;
-        }
-
         // 날짜 클릭 이벤트 설정
         function setupDateClickHandlers() {
             document.querySelectorAll('td[data-date]').forEach(cell => {
@@ -365,22 +256,22 @@
             });
         }
 
-        function handleDateClick(e) {
+                function handleDateClick(e) {
             e.stopPropagation();
             const clickedDate = e.currentTarget.getAttribute('data-date');
-            
+
             // 기존 선택된 날짜 스타일 제거
             document.querySelectorAll('td.selected-date').forEach(td => {
                 td.classList.remove('selected-date');
             });
-            
+
             // 새로 클릭된 날짜에 선택 스타일 추가
             e.currentTarget.classList.add('selected-date');
 
             // 클릭된 날짜의 일정 표시
             const clickedDateObj = new Date(clickedDate);
             clickedDateObj.setHours(0, 0, 0, 0);
-            
+
             const allEvents = [...schoolEvents, ...events, ...endEvents];
             const dateEvents = allEvents.filter(event => {
                 const eventStart = new Date(event.start_date);
@@ -396,7 +287,7 @@
                 <div class="schedule-item ${selectedEventId !== null && event.id === selectedEventId ? 'selected-schedule' : ''}" data-id="${event.id}">
                     <div class="event-header">
                         <span>${event.title}</span>
-                        <span class="event-type-label">${event.type === 'school' ? '학사일정' : 
+                        <span class="event-type-label">${event.type === 'school' ? '학사일정' :
                                                     event.type === 'ended' ? '종료' : '진행중'}</span>
                     </div>
                     <div class="event-dates">${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}</div>
@@ -439,53 +330,260 @@
             }
         }
 
-        // 일정 클릭 이벤트 설정
-        function setupScheduleItemClickHandlers() {
-            document.querySelectorAll('.schedule-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    const eventId = parseInt(e.currentTarget.getAttribute('data-id'));
-                    const allEvents = [...schoolEvents, ...events, ...endEvents];
-                    let event = allEvents.find(ev => ev.id === eventId);
+        // 일정 렌더링 함수
+        function renderEvents(year, month) {
+            const dateEventPositions = {};
 
-                    if (event) {
-                        if (selectedEventId === eventId) {
-                            resetModifyForm();
-                            e.currentTarget.classList.remove('selected-schedule');
-                        } else {
-                            selectedEventId = eventId;
-                            modifyStartDate = event.start_date;
-                            modifyEndDate = event.end_date;
+            const activeEvents = [
+                ...(hideSchoolEvents ? [] : schoolEvents),
+                ...(hideEvents ? [] : events),
+                ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
+            ];
+            activeEvents.sort((a, b) => {
 
-                            document.getElementById('schedule-title-input').value = event.title;
-                            document.getElementById('schedule-content-input').value = event.content;
-                            document.getElementById('modify-start-date').textContent = formatDate(event.start_date);
-                            document.getElementById('modify-end-date').textContent = formatDate(event.end_date);
-                            
-                            // 종료 체크박스 상태 설정
-                            const endCheckbox = document.getElementById('end-status');
-                            if (event.type === 'school') {
-                                endCheckbox.disabled = true;
-                                endCheckbox.checked = false;
-                            } else {
-                                endCheckbox.disabled = false;
-                                endCheckbox.checked = event.type === 'ended';
+                if (a.type !== b.type) {
+                // 타입별 우선순위: school > events > ended
+                const typeOrder = { school: 0, current: 1, ended: 2 };
+                return typeOrder[a.type] - typeOrder[b.type];
+                 }
+
+                  return new Date(a.end_date) - new Date(b.end_date);
+
+            });
+
+            activeEvents.forEach(event => {
+                const start_date = new Date(event.start_date);
+                const end_date = new Date(event.end_date);
+
+                if (start_date.getFullYear() <= year && start_date.getMonth() <= month &&
+                end_date.getFullYear() >= year && end_date.getMonth() >= month) {
+
+                    let availablePosition = checkAvailablePosition(start_date, end_date, dateEventPositions);
+
+                    if (availablePosition !== -1) {
+                        let currentDate = new Date(start_date);
+                        let isFirstWeek = true;
+
+                        while (currentDate <= end_date) {
+                            const currentDateStr = currentDate.toISOString().split('T')[0];
+                            const cell = document.querySelector(`td[data-date="${currentDateStr}"]`);
+
+                            if (cell) {
+                                const isNewWeek = currentDate.getDay() === 0 || currentDate.getTime() === start_date.getTime();
+                                const isLastDay = currentDate.getTime() === end_date.getTime();
+                                const isLastDayOfWeek = currentDate.getDay() === 6;
+                                const isMonthChanged = currentDate.getMonth() !== start_date.getMonth();
+                                const isYearChanged = currentDate.getFullYear() !== start_date.getFullYear();
+
+                                const eventElement = document.createElement('div');
+                                eventElement.classList.add('calendar-event');
+                                eventElement.setAttribute('data-id', event.id);
+                                eventElement.style.backgroundColor =
+                                    event.type === 'school' ? '#FFD700' :
+                                    event.type === 'ended' ? '#D3D3D3' :
+                                    '#87CEEB';
+
+                                eventElement.style.top = `${availablePosition === 0 ? 25 : 55}px`;
+
+                                if (isFirstWeek) {
+                                    eventElement.textContent = event.title;
+                                    eventElement.style.marginLeft = start_date.getTime() === end_date.getTime() ? '3px' : '3px';
+                                    eventElement.style.marginRight = start_date.getTime() === end_date.getTime() ? '3px' : '-1px';
+                                    isFirstWeek = false;
+                                } else if (isLastDay) {
+                                    eventElement.style.marginLeft = '-1px';
+                                    eventElement.style.marginRight = '3px';
+                                } else {
+                                    eventElement.style.marginLeft = '-1px';
+                                    eventElement.style.marginRight = '-1px';
+                                }
+
+                                if (isNewWeek) eventElement.classList.add('event-start');
+                                if (isLastDayOfWeek && !isLastDay) eventElement.classList.add('event-continue');
+                                if (isLastDay) eventElement.classList.add('event-end');
+                                if (isMonthChanged || isYearChanged) eventElement.classList.add('event-continue');
+
+                                cell.appendChild(eventElement);
+
+                                if (!dateEventPositions[currentDateStr]) {
+                                    dateEventPositions[currentDateStr] = [];
+                                }
+                                dateEventPositions[currentDateStr].push(availablePosition);
                             }
 
-                            document.querySelectorAll('.schedule-item').forEach(si => {
-                                si.classList.remove('selected-schedule');
-                            });
-                            e.currentTarget.classList.add('selected-schedule');
+                            currentDate.setDate(currentDate.getDate() + 1);
                         }
+                    }
+                }
+            });
+        }
+
+        // 일정 타입 변경 이벤트 설정
+        function setupEventTypeHandlers() {
+            document.querySelectorAll('.event-type-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const eventId = parseInt(e.target.getAttribute('data-id'));
+                    const newType = e.target.value;
+
+                    // Find and remove event from current array
+                    let event;
+                    [schoolEvents, events, endEvents].forEach(arr => {
+                        const index = arr.findIndex(e => e.id === eventId);
+                        if (index !== -1) {
+                            event = arr[index];
+                            arr.splice(index, 1);
+                        }
+                    });
+
+                    if (event) {
+                        event.type = newType;
+                        // Add to new array based on type
+                        switch(newType) {
+                            case 'school':
+                                schoolEvents.push(event);
+                                break;
+                            case 'current':
+                                events.push(event);
+                                break;
+                            case 'ended':
+                                endEvents.push(event);
+                                break;
+                        }
+                        renderCalendar();
                     }
                 });
             });
         }
 
+        // 일정 위치 확인 함수
+        function checkAvailablePosition(start_date, end_date, dateEventPositions) {
+            let currentDate = new Date(start_date);
+            const positions = new Set();
+
+            while (currentDate <= end_date) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                if (dateEventPositions[dateStr]) {
+                    dateEventPositions[dateStr].forEach(pos => positions.add(pos));
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            if (!positions.has(0)) return 0;
+            if (!positions.has(1)) return 1;
+            return -1;
+        }
+
+
+         //일정 목록 렌더링 함수
+       function renderCurrentEvents(events) {
+            const scheduleDisplay = document.getElementById('date-schedules');
+
+            // 'current' 타입 일정만 필터링
+            const currentEvents = events.filter(event => event.type === 'current');
+            // start_date 기준으로 정렬, start_date가 같으면 end_date 기준으로 정렬
+            currentEvents.sort((a, b) => {
+                const startDateDiff = new Date(a.start_date) - new Date(b.start_date);
+                if (startDateDiff !== 0) {
+                    return startDateDiff; // start_date가 다르면 이 값으로 정렬
+                }
+                return new Date(a.end_date) - new Date(b.end_date); // start_date가 같으면 end_date로 정렬
+            });
+
+            // 필터링된 일정만 렌더링
+            scheduleDisplay.innerHTML = currentEvents.map(event => `
+                <div class="schedule-item ${selectedEventId !== null && event.id === selectedEventId ? 'selected-schedule' : ''}"
+                     data-id="${event.id}">
+                    <div class="event-header">
+                        <span>${event.title}</span>
+                        <span class="event-type-label">진행중</span>
+                    </div>
+                    <div class="event-dates">${formatDate(event.start_date)} ~ ${formatDate(event.end_date)}</div>
+                </div>
+            `).join('');
+
+            // 렌더링 후 각 schedule-item에 클릭 이벤트 추가
+            const scheduleItems = document.querySelectorAll('.schedule-item');
+            scheduleItems.forEach(item => {
+                item.addEventListener('click', function () {
+                    handleScheduleClick(item, events);
+                });
+            });
+        }
+        // 클릭 이벤트 처리 함수
+function handleScheduleClick(item, events) {
+    const eventId = parseInt(item.getAttribute('data-id'));
+    const selectedEvent = events.find(event => event.id === eventId);
+
+    if (!selectedEvent) {
+        console.error(`Event with ID ${eventId} not found.`);
+        return; // 이벤트가 없으면 함수 종료
+    }
+
+    // 폼 숨겨진 필드 업데이트 (ID 전달용)
+    const eventIdField = document.getElementById('selected-event-id');
+    if (eventIdField) {
+        eventIdField.value = eventId;
+    } else {
+        console.error("Hidden field 'selected-event-id' not found.");
+    }
+
+    // HTML 요소 가져오기
+    const modifyStartDateEl = document.getElementById('start-date');
+    const modifyEndDateEl = document.getElementById('end-date');
+    const titleInputEl = document.getElementById('schedule-title');
+    const contentInputEl = document.getElementById('schedule-content');
+    const endStatusEl = document.getElementById('is-completed');
+
+    // 필드 값 업데이트
+    if (modifyStartDateEl) {
+        modifyStartDateEl.value = selectedEvent.start_date || '';
+    } else {
+        console.error("'start-date' element not found.");
+    }
+
+    if (modifyEndDateEl) {
+        modifyEndDateEl.value = selectedEvent.end_date || '';
+    } else {
+        console.error("'end-date' element not found.");
+    }
+
+    if (titleInputEl) {
+        titleInputEl.value = selectedEvent.title || '';
+    } else {
+        console.error("'schedule-title' element not found.");
+    }
+
+    if (contentInputEl) {
+        contentInputEl.value = selectedEvent.memo || '';
+    } else {
+        console.error("'schedule-content' element not found.");
+    }
+
+    if (endStatusEl) {
+        endStatusEl.checked = selectedEvent.is_completed || false;
+    } else {
+        console.error("'is-completed' element not found.");
+    }
+
+    // 선택된 상태 업데이트
+    document.querySelectorAll('.schedule-item').forEach(i => i.classList.remove('selected-schedule'));
+    item.classList.add('selected-schedule');
+}
+
+
+
+        document.addEventListener('DOMContentLoaded', function (){
+                renderCurrentEvents(events);
+        });
+
+
+
+
         // 수정 폼 초기화
         function resetModifyForm() {
-            document.getElementById('schedule-input').value = '';
-            document.getElementById('modify-start-date').textContent = '선택해주세요';
-            document.getElementById('modify-end-date').textContent = '선택해주세요';
+            document.getElementById('schedule-input-2').value = '';
+            document.getElementById('start-date').textContent = '선택해주세요';
+            document.getElementById('end-date').textContent = '선택해주세요';
             selectedEventId = null;
             modifyStartDate = null;
             modifyEndDate = null;
@@ -504,103 +602,28 @@
         }
 
 
-        // 변경 버튼 이벤트
-        document.getElementById('add-schedule-button').addEventListener('click', () => {
-            if (selectedEventId) {
-                const updatedTitle = document.getElementById('schedule-title').value.trim();
-                const updatedContent = document.getElementById('schedule-content').value.trim();
-                const endCheckbox = document.getElementById('end-status');
-                let event;
-                let sourceArray;
-                
-                // 이벤트 찾기 및 원본 배열에서 제거
-                [schoolEvents, events, endEvents].forEach(arr => {
-                    const index = arr.findIndex(e => e.id === selectedEventId);
-                    if (index !== -1) {
-                        event = arr[index];
-                        sourceArray = arr;
-                        arr.splice(index, 1);
-                    }
-                });
-                
-                if (event && updatedTitle) {
-                    event.title = updatedTitle;
-                    event.content = updatedContent;
-                    if (modifyStartDate && modifyEndDate) {
-                        event.start_date = modifyStartDate;
-                        event.end_date = modifyEndDate;
-                    }
-                    
-                    // 종료 상태에 따라 배열 변경
-                    if (event.type !== 'school') {
-                        event.type = endCheckbox.checked ? 'ended' : 'current';
-                        if (endCheckbox.checked) {
-                            endEvents.push(event);
-                        } else {
-                            events.push(event);
-                        }
-                    } else {
-                        schoolEvents.push(event);
-                    }
-                    
-                    renderCalendar();
-                    resetModifyForm();
-                    document.getElementById('date-schedules').innerHTML = '';
-                    alert('일정이 변경되었습니다!');
-                } else {
-                    alert('일정 이름을 입력해주세요.');
-                }
-            } else {
-                alert('변경할 일정을 선택해주세요.');
-            }
-        });
-
-        let changingDates = false;
-
-        document.getElementById('change-dates-button').addEventListener('click', () => {
-            changingDates = true;
-            modifyStartDate = null;
-            modifyEndDate = null;
-            document.getElementById('modify-start-date').textContent = '선택해주세요';
-            document.getElementById('modify-end-date').textContent = '선택해주세요';
-        });
-
-        // 삭제 버튼 이벤트
-        document.getElementById('delete-schedule-button').addEventListener('click', () => {
-            if (selectedEventId) {
-                let foundInArray = false;
-                [schoolEvents, events, endEvents].forEach(arr => {
-                    const index = arr.findIndex(e => e.id === selectedEventId);
-                    if (index !== -1) {
-                        arr.splice(index, 1);
-                        foundInArray = true;
-                    }
-                });
-
-                if (foundInArray) {
-                    renderCalendar();
-                    resetModifyForm();
-                    document.getElementById('date-schedules').innerHTML = '';
-                    alert('일정이 삭제되었습니다!');
-                }
-            } else {
-                alert('삭제할 일정을 선택해주세요.');
-            }
-        });
 
         // 날짜 포맷 변환 함수
         function resetModifyForm() {
-            document.getElementById('schedule-input').value = '';
-            document.getElementById('modify-start-date').textContent = '선택해주세요';
-            document.getElementById('modify-end-date').textContent = '선택해주세요';
+            document.getElementById('schedule-input-2').value = '';
+            document.getElementById('start-date').textContent = '선택해주세요';
+            document.getElementById('end-date').textContent = '선택해주세요';
             selectedEventId = null;
             modifyStartDate = null;
             modifyEndDate = null;
-            
+
             document.querySelectorAll('td.selected-date').forEach(td => {
                 td.classList.remove('selected-date');
             });
         }
 
         renderCalendar();
+    </script>
+
+    <script>
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
     </script>
