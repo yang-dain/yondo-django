@@ -174,13 +174,13 @@ def find_pw(request):
         pw_ans = request.POST.get('pw_ans')    # 답변
 
         try:
-            # 아이디로 사용자 찾기
-            user = Custom_user.objects.get(id=userid)
+            custom_user = Custom_user.objects.get(id=userid)
 
             # 사용자가 입력한 질문과 답변이 맞는지 비교
-            if user.pw_qust == int(pw_qust) and user.pw_ans == pw_ans:
+            if custom_user.pw_qust == int(pw_qust) and custom_user.pw_ans == pw_ans:
                 # 답변이 맞으면 새로운 비밀번호 입력 페이지로 리디렉션
-                return redirect('webapp:reset_pw', userid=userid)
+                request.session['user_id'] = userid
+                return redirect('webapp:reset_pw')
             else:
                 # 질문 또는 답변이 틀린 경우
                 messages.error(request, '질문 또는 답변이 일치하지 않습니다.')
@@ -190,20 +190,18 @@ def find_pw(request):
 
     return render(request, 'AUTH-04.html')
 
-def reset_pw(request, userid):
+def reset_pw(request):
     if request.method == "POST":
-        cur_pw = request.POST.get('cur_pw')
         new_pw = request.POST.get('new_pw')
         new_pw_confirm = request.POST.get('new_pw_confirm')
 
         try:
-            # 사용자 찾기
-            user = Custom_user.objects.get(id=userid)
+            user_id = request.session.get('user_id')
 
-            # 현재 비밀번호 확인
-            if user.pw != cur_pw:
-                messages.error(request, '현재 비밀번호가 일치하지 않습니다.')
-                return render(request, 'AUTH-05.html')
+            if not user_id:
+                return redirect('webapp:login')
+
+            custom_user = get_object_or_404(Custom_user, id=user_id)
 
             # 새 비밀번호와 확인 비밀번호가 같은지 확인
             if new_pw != new_pw_confirm:
@@ -211,9 +209,10 @@ def reset_pw(request, userid):
                 return render(request, 'AUTH-05.html')
 
             # 새 비밀번호 업데이트
-            user.pw = new_pw
-            user.save()
+            custom_user.pw = new_pw
+            custom_user.save()
 
+            del request.session['user_id']
             messages.success(request, '비밀번호가 성공적으로 변경되었습니다.')
             return redirect('webapp:login')  # 로그인 페이지로 이동
 
