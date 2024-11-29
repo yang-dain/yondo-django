@@ -13,11 +13,11 @@
     </div>
     <div class="login-container">
         <div class="title">로그인</div>
-        <form method="POST" action="/webapp/main/"> <!-- 메인 화면 URL로 변경 -->
+        <form method="POST" action="/webapp/main/"> 
             {% csrf_token %}
             <input type="text" name="userid" placeholder="아이디" required>
             <input type="password" name="password" placeholder="비밀번호" required>
-            <button type="submit">로그인</button> <!-- 버튼은 기본적으로 form 제출 -->
+            <button type="submit">로그인</button> 
         </form>
         <div class="extra-links">
             <a href="/webapp/find_id/">아이디</a> /
