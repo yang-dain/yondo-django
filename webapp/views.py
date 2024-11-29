@@ -222,8 +222,29 @@ def reset_pw(request):
 
     return render(request, 'AUTH-05.html')
 
-def withdraw(request):
-    return render(request, 'withdraw-light.html')
+def del_account(request): #회원 탈퇴
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')  
+
+    try:
+        custom_user = Custom_user.objects.get(id=user_id)
+
+        if request.method == "POST":  # POST 요청으로 탈퇴 실행
+            print(custom_user)
+            custom_user.delete() # 사용자 삭제
+            request.session.flush() # 세션 종료 및 로그아웃
+            messages.success(request, '회원 탈퇴가 완료되었습니다.')
+
+            return redirect('webapp:login')
+
+        # 탈퇴 확인 페이지 렌더링
+        return render(request, 'withdraw-light.html')
+
+    except Custom_user.DoesNotExist:
+        messages.error(request, '사용자를 찾을 수 없습니다.')
+        return redirect('webapp:login')
 
 def todo_view(request): #일정 목록
     user_id = request.session.get('user_id')
