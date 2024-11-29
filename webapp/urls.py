@@ -18,6 +18,6 @@ urlpatterns = [
     path('find_id/', views.find_id, name='find_id'), #아이디 찾기
     path('find_pw/', views.find_pw, name='find_pw'), #비밀번호 찾기
     path('reset_pw/', views.reset_pw, name='reset_pw'), #비밀번호 변경
-    path('withdraw/', views.withdraw, name='withdraw'), #회원 탈퇴
+    path('withdraw/', views.del_account, name='del_account'), #회원 탈퇴
 ]
 
