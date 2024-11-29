@@ -223,6 +223,8 @@ def reset_pw(request, userid):
 
     return render(request, 'AUTH-05.html')
 
+def withdraw(request):
+    return render(request, 'withdraw-light.html')
 
 def todo_view(request): #일정 목록
     user_id = request.session.get('user_id')
@@ -270,6 +272,17 @@ def mypage(request): #마이페이지
         'completed_schedules': completed_schedules,
         'remaining_schedules': remaining_schedules,
     })
+
+def account(request): # 내 정보 관리
+    user_id = request.session.get('user_id') 
+
+    if not user_id:
+        return redirect('webapp:login')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+
+    return render(request, 'SET-01-light.html', {'user': custom_user})  # user 데이터 전달
+
 
 def schedule_list(request): #내 일정 관리
     return render(request, 'SET-03.html')
