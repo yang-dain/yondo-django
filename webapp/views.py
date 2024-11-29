@@ -264,7 +264,7 @@ def mypage(request): #마이페이지
     remaining_schedules = len(current_events)
 
     # 템플릿에 데이터 전달
-    return render(request, 'SET-00-light.html', {
+    return render(request, 'SET-00.html', {
         'user_name': user_name,
         'days_elapsed': days_elapsed,
         'completed_schedules': completed_schedules,
@@ -272,7 +272,7 @@ def mypage(request): #마이페이지
     })
 
 def schedule_list(request): #내 일정 관리
-    return render(request, 'SET-03-light.html')
+    return render(request, 'SET-03.html')
 
 def post(request): #일정 추가
     user_id = request.session.get('user_id')
