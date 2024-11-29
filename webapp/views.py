@@ -82,7 +82,6 @@ def login(request):
                 # 비밀번호 일치 -> 로그인 처리
                 request.session['user_id'] = user.id  # 세션에 사용자 ID 저장
                 request.session['is_logged_in'] = 1 # 세션 로그인 상태
-                messages.success(request, '로그인 성공!')
                 return redirect('webapp:main')  # 로그인 후 메인 페이지로 리디렉션
             else:
                 # 비밀번호 불일치
@@ -174,13 +173,13 @@ def find_pw(request):
         pw_ans = request.POST.get('pw_ans')    # 답변
 
         try:
-            # 아이디로 사용자 찾기
-            user = Custom_user.objects.get(id=userid)
+            custom_user = Custom_user.objects.get(id=userid)
 
             # 사용자가 입력한 질문과 답변이 맞는지 비교
-            if user.pw_qust == int(pw_qust) and user.pw_ans == pw_ans:
+            if custom_user.pw_qust == int(pw_qust) and custom_user.pw_ans == pw_ans:
                 # 답변이 맞으면 새로운 비밀번호 입력 페이지로 리디렉션
-                return redirect('webapp:reset_pw', userid=userid)
+                request.session['user_id'] = userid
+                return redirect('webapp:reset_pw')
             else:
                 # 질문 또는 답변이 틀린 경우
                 messages.error(request, '질문 또는 답변이 일치하지 않습니다.')
@@ -190,20 +189,18 @@ def find_pw(request):
 
     return render(request, 'AUTH-04.html')
 
-def reset_pw(request, userid):
+def reset_pw(request):
     if request.method == "POST":
-        cur_pw = request.POST.get('cur_pw')
         new_pw = request.POST.get('new_pw')
         new_pw_confirm = request.POST.get('new_pw_confirm')
 
         try:
-            # 사용자 찾기
-            user = Custom_user.objects.get(id=userid)
+            user_id = request.session.get('user_id')
 
-            # 현재 비밀번호 확인
-            if user.pw != cur_pw:
-                messages.error(request, '현재 비밀번호가 일치하지 않습니다.')
-                return render(request, 'AUTH-05.html')
+            if not user_id:
+                return redirect('webapp:login')
+
+            custom_user = get_object_or_404(Custom_user, id=user_id)
 
             # 새 비밀번호와 확인 비밀번호가 같은지 확인
             if new_pw != new_pw_confirm:
@@ -211,10 +208,12 @@ def reset_pw(request, userid):
                 return render(request, 'AUTH-05.html')
 
             # 새 비밀번호 업데이트
-            user.pw = new_pw
-            user.save()
+            custom_user.pw = new_pw
+            custom_user.save()
 
+            request.session.flush() # 세션 초기화
             messages.success(request, '비밀번호가 성공적으로 변경되었습니다.')
+            messages.success(request, '다시 로그인 해주세요.')
             return redirect('webapp:login')  # 로그인 페이지로 이동
 
         except Custom_user.DoesNotExist:
@@ -223,8 +222,29 @@ def reset_pw(request, userid):
 
     return render(request, 'AUTH-05.html')
 
-def withdraw(request):
-    return render(request, 'withdraw-light.html')
+def del_account(request): #회원 탈퇴
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')  
+
+    try:
+        custom_user = Custom_user.objects.get(id=user_id)
+
+        if request.method == "POST":  # POST 요청으로 탈퇴 실행
+            print(custom_user)
+            custom_user.delete() # 사용자 삭제
+            request.session.flush() # 세션 종료 및 로그아웃
+            messages.success(request, '회원 탈퇴가 완료되었습니다.')
+
+            return redirect('webapp:login')
+
+        # 탈퇴 확인 페이지 렌더링
+        return render(request, 'withdraw-light.html')
+
+    except Custom_user.DoesNotExist:
+        messages.error(request, '사용자를 찾을 수 없습니다.')
+        return redirect('webapp:login')
 
 def todo_view(request): #일정 목록
     user_id = request.session.get('user_id')

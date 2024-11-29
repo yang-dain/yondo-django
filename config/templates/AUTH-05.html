@@ -14,12 +14,11 @@
     </div>
     <div class="change-container">
         <div class="title">비밀번호 변경</div>
-        <form method="post" action="/webapp/change_pw/">
+        <form method="post" action="/webapp/reset_pw/">
             {% csrf_token %}
-            <input type="password" name="cur_pw" placeholder="현재 비밀번호" required>
             <input type="password" name="new_pw" placeholder="새 비밀번호" required>
             <input type="password" name="new_pw_confirm" placeholder="새 비밀번호 확인" required>
-            <a href="/webapp/login/" class="button change-password"> 비밀번호 변경</a>
+            <button type="submit" class="button change-password"> 비밀번호 변경</button>
     </form>
     </div>
     <script>
