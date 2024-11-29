@@ -165,21 +165,21 @@
         <table class="table">
             <tr>
                 <td><strong>이름</strong></td>
-                <td>홍길동</td>
+                <td>{{ user.name }}</td>
             </tr>
             <tr>
                 <td><strong>아이디</strong></td>
-                <td>user123</td>
+                <td>{{ user.id }}</td>
             </tr>
             <tr>
                 <td><strong>이메일</strong></td>
-                <td>example@example.com</td>
+                <td>{{ user.user_email }}</td>
             </tr>
         </table>
 
         <div class="button-container">
-            <button class="button">비밀번호 변경</button>
-            <button class="button">회원 탈퇴</button>
+            <a href="/webapp/reset_pw/"><button class="button">비밀번호 변경</button></a>
+            <a href="/webapp/withdraw/"><button class="button">회원 탈퇴</button></a>
         </div>
     </div>
 </body>
