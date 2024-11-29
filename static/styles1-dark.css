@@ -15,10 +15,15 @@ body, html {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 10px 20px;
-    background-color: #373737;
-    height: 120px;
+    position: relative;
+}
+
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .logo-container {
@@ -26,14 +31,13 @@ body, html {
     width: 120px;
     height: 120px;
     padding-top: 0;
-    z-index: 2;
     background-color: #373737;
 }
 
 .logo-container a img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 93px;
+    height: 104.8px;
+    object-fit: contain;
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
@@ -42,13 +46,25 @@ body, html {
     transform: scale(1.05); 
 }
 
+.divider {
+    width: calc(100% - 120px); /* 로고 너비만큼 뺌 */
+    height: 2px;
+    background-color: #398428;
+    position: absolute;
+    left: 120px;  /* 로고 너비만큼 띄움 */
+    top: 100px;
+}
+
 .button-container {
+    margin-top: 10px;
     display: flex;
     gap: 10px;
     margin-right: 50px;
 }
 
 .button {
+    width: 100px;
+    height: 30px;
     color: #f6f3ef;
     background-color: #398428;
     padding: 10px 20px;
@@ -56,20 +72,13 @@ body, html {
     border-radius: 5px;
     transition: background-color 0.3s ease;
     font-weight: bold;
-}
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
+}
 .button:hover {
     background-color: #2e6e22; /* 버튼 호버 색상 */
-}
-
-.divider {
-    width: calc(100% - 120px);
-    height: 2px;
-    background-color: #398428;
-    margin: 0;
-    position: relative;
-    left: 120px;
-    top: -2px;
 }
 
 .main-container {
