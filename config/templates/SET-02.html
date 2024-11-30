@@ -40,49 +40,51 @@
     <!-- 알림 설정 컨테이너 -->
     <div class="container">
         <div class="header">UI 설정</div>
-        <table>
-            <tr>
-                <th>알림 종류</th>
-                <th>설정</th>
-                    <tr>
-                        <td>학사 일정</td>
-                        <td>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="type" value="school_events">
-                                <button type="submit">
-                                    {% if hide_school_events %}끄기{% else %}켜기{% endif %}
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>종료된 일정</td>
-                        <td>
-                            <form method="POST">
-                                {% csrf_token %}
-                                <input type="hidden" name="type" value="end_events">
-                                <button type="submit">
-                                    {% if hide_end_events %}끄기{% else %}켜기{% endif %}
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
+        <div class="table-container">
+            <table>
                 <tr>
-                    <td>다크모드</td>
-                    <td>
-                        <form method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="type" value="dark_mode">
-                            <input type="hidden" name="mode" value="{{ mode }}">
-                            <button type="submit">
-                                {% if mode == 0 %} 끄기 {% else %} 켜기 {% endif %}
-                            </button>
-                        </form>
-                    </td>
+                    <th>알림 종류</th>
+                    <th>설정</th>
+                        <tr>
+                            <td>학사 일정</td>
+                            <td>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="type" value="school_events">
+                                    <button type="submit">
+                                        {% if hide_school_events %}끄기{% else %}켜기{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>종료된 일정</td>
+                            <td>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="type" value="end_events">
+                                    <button type="submit">
+                                        {% if hide_end_events %}끄기{% else %}켜기{% endif %}
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    <tr>
+                        <td>다크모드</td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="dark_mode">
+                                <input type="hidden" name="mode" value="{{ mode }}">
+                                <button type="submit">
+                                    {% if mode == 0 %} 끄기 {% else %} 켜기 {% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
                 </tr>
-            </tr>
-        </table>
+            </table>
+        </div>
         <div class="button-container">
             <a href="/webapp/mypage/event" class="button">목록으로</a>
         </div>
