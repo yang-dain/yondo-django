@@ -75,7 +75,22 @@ body {
     background-color: #2e6e22;
 }
 
+.mypage {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    color: #f6f3ef;
+    background-color:#398428;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
 
+.mypage:hover {
+    background-color: #2e6e22;
+}
 
 .divider {
     width: 100%;
