@@ -88,6 +88,7 @@ def login(request):
                 # 비밀번호 일치 -> 로그인 처리
                 request.session['user_id'] = user.id  # 세션에 사용자 ID 저장
                 request.session['is_logged_in'] = 1 # 세션 로그인 상태
+                messages.success(request, '로그인 되었습니다.')
                 return redirect('webapp:main')  # 로그인 후 메인 페이지로 리디렉션
             else:
                 # 비밀번호 불일치
@@ -97,14 +98,15 @@ def login(request):
             messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
 
     return render(request, 'AUTH-01.html')
-
 def logout(request):
     try:
         del request.session['user_id']
         del request.session['is_logged_in']
         messages.success(request, '로그아웃 되었습니다.')
+        return redirect('webapp:main')
     except KeyError:
         pass
+
     return redirect('webapp:main')
 
 def signup(request):
@@ -161,6 +163,7 @@ def find_id(request):
 
             # 성공 메시지
             messages.success(request, f"{name}님의 아이디는 {user_id}입니다.")
+            return  redirect('webapp:login')
 
             # 아이디를 알림 팝업으로 표시하도록 메시지 전달
             return render(request, 'AUTH-01.html')
@@ -171,6 +174,7 @@ def find_id(request):
             return render(request, 'AUTH-03.html')
 
     return render(request, 'AUTH-03.html')
+    
 
 def find_pw(request):
     if request.method == "POST":
@@ -241,9 +245,8 @@ def del_account(request): #회원 탈퇴
             print(custom_user)
             custom_user.delete() # 사용자 삭제
             request.session.flush() # 세션 종료 및 로그아웃
-            messages.success(request, '회원 탈퇴가 완료되었습니다.')
 
-            return redirect('webapp:login')
+            return render(request, 'withdraw-light.html')
 
         # 탈퇴 확인 페이지 렌더링
         return render(request, 'withdraw-light.html')

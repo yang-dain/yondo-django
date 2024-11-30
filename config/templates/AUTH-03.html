@@ -16,11 +16,6 @@
     </div>
     <div class="find-container">
         <div class="title">아이디 찾기</div>
-        {% if messages %}
-            {% for message in messages %}
-                alert("{{ message|escapejs }}");
-            {% endfor %}
-        {% endif %}
             <form method="POST" action="/webapp/find_id/">
                 {% csrf_token %}
                 <input type="text" name="name" placeholder="이름" required>
@@ -45,7 +40,13 @@
             styleSheet.href = '../../static/darkmode.css';
             logoImg.src = '/static/darkmode.png';
         }
-    });
+
+        const messages = "{% for message in messages %}{{ message }}{% endfor %}";
+
+            if (messages) {
+                alert(messages);  // 메시지를 팝업으로 표시
+            }
+        });
     </script>
 </body>
 </html>
