@@ -469,16 +469,19 @@ def ui_list(request): #ui 관리
 
     if request.method == "POST":
         # 버튼의 타입에 따라 상태 변경
-        toggle_type = request.POST.get('type')  # "school_events" 또는 "end_events"
+        toggle_type = request.POST.get('type')  # "school_events" 또는 "end_events" 또는 "dark_mode"
         if toggle_type == "school_events":
             custom_user.hide_school_events = not custom_user.hide_school_events
         elif toggle_type == "end_events":
             custom_user.hide_end_events = not custom_user.hide_end_events
+        elif toggle_type == "dark_mode": # True: 다크모드, False: 라이트모드
+            custom_user.mode = 1 if custom_user.mode == 0 else 0
         custom_user.save()
 
     # 사용자 설정 상태 전달
     context = {
         "hide_school_events": custom_user.hide_school_events,
         "hide_end_events": custom_user.hide_end_events,
+        "mode": custom_user.mode,
     }
     return render(request, "SET-02.html", context)
