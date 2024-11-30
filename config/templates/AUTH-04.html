@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>연DO 비밀번호 찾기</title>
     <link id="theme-style" rel="stylesheet" href="">
+
     <style>
     </style>
 </head>
 <body>
     <div class="home-box">
-        <img src="/static/logo-light.png" alt="연DO">
+        <a href="/webapp/main/" class="logo">
+            <img src="/static/logo-light.png" alt="연DO">
+        </a>
     </div>
     <div class="find-container">
         <div class="title">비밀번호 찾기</div>
@@ -19,18 +22,19 @@
             <input type="text" name="userid" placeholder="아이디" required>
             <select name="pw_qust" required>
                 <option value="" disabled selected>선택항목 중 선택</option>
-                <option value="1">첫 여행지는?</option>
-                <option value="2">가장 기억에 남는 장소는?</option>
-                <option value="3">가장 친한 친구 이름은?</option>
+                <option value="question1">첫 해외 여행지는?</option>
+                <option value="question2">가장 기억에 남는 장소는?</option>
+                <option value="question3">가장 친한 친구 이름은?</option>
             </select>
             <input type="text" name="pw_ans" placeholder="답변" required>
-            <button type="submit" class="button find-button">확인</button>
+            <button type="submit">확인</button>
+                <a href="/webapp/login/" class="button find-button"></a>
         </form>
     </div>
     <script>
         let currentDate = new Date();
         // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
-        let mode = 1;
+        let mode = 0;
 
         document.addEventListener('DOMContentLoaded', function() {
         const styleSheet = document.getElementById('theme-style');
