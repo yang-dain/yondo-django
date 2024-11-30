@@ -68,10 +68,19 @@
                             </form>
                         </td>
                     </tr>
-
-
-                <td>다크모드</td>
-                <td><button1 onclick="toggleAlert(this)">켜기</button1></td>
+                <tr>
+                    <td>다크모드</td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="type" value="dark_mode">
+                            <input type="hidden" name="mode" value="{{ mode }}">
+                            <button type="submit">
+                                {% if mode == 0 %} 끄기 {% else %} 켜기 {% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
             </tr>
         </table>
         <div class="button-container">
