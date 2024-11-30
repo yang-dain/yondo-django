@@ -24,14 +24,6 @@
                     <a href="/webapp/login/" class="button find-button"></a>
             </form>
     </div>
-
-    <div id="message-container">
-        {% if messages %}
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        {% endif %}
-    </div>
     <script>
         let currentDate = new Date();
         // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
@@ -49,18 +41,12 @@
             logoImg.src = '/static/darkmode.png';
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const messageContainer = document.getElementById('message-container');
-            const messages = messageContainer.querySelectorAll('p');
+        const messages = "{% for message in messages %}{{ message }}{% endfor %}";
 
-            if (messages.length > 0) {
-                messages.forEach(function (msg) {
-                    alert(msg.textContent);  // 메시지를 팝업으로 표시
-                });
-                messageContainer.style.display = "block";  // 메시지를 화면에 표시
+            if (messages) {
+                alert(messages);  // 메시지를 팝업으로 표시
             }
         });
-    });
     </script>
 </body>
 </html>
