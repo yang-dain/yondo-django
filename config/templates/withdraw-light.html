@@ -89,8 +89,14 @@
 
     <div class="container">
         <div class="header">탈퇴가 완료되었습니다</div>
-        
     </div>
+
+    <script>
+        // 3초 후에 메인 페이지로 리디렉션
+        setTimeout(function() {
+            window.location.href = "/webapp/main/"; // 메인 페이지 URL로 이동
+        }, 3000);  // 3000ms = 3초
+    </script>
 
 </body>
 </html>
