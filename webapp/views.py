@@ -164,7 +164,7 @@ def find_id(request):
             messages.error(request, '입력한 정보와 일치하는 아이디가 없습니다.')
             return render(request, 'AUTH-03.html')
 
-    return render(request, 'AUTH-03-light.html')
+    return render(request, 'AUTH-03.html')
 
 def find_pw(request):
     if request.method == "POST":
