@@ -16,11 +16,6 @@
     </div>
     <div class="find-container">
         <div class="title">아이디 찾기</div>
-        {% if messages %}
-            {% for message in messages %}
-                alert("{{ message|escapejs }}");
-            {% endfor %}
-        {% endif %}
             <form method="POST" action="/webapp/find_id/">
                 {% csrf_token %}
                 <input type="text" name="name" placeholder="이름" required>
@@ -28,6 +23,14 @@
                 <button type="submit">확인</button>
                     <a href="/webapp/login/" class="button find-button"></a>
             </form>
+    </div>
+
+    <div id="message-container">
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
     </div>
     <script>
         let currentDate = new Date();
@@ -45,6 +48,18 @@
             styleSheet.href = '../../static/darkmode.css';
             logoImg.src = '/static/darkmode.png';
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageContainer = document.getElementById('message-container');
+            const messages = messageContainer.querySelectorAll('p');
+
+            if (messages.length > 0) {
+                messages.forEach(function (msg) {
+                    alert(msg.textContent);  // 메시지를 팝업으로 표시
+                });
+                messageContainer.style.display = "block";  // 메시지를 화면에 표시
+            }
+        });
     });
     </script>
 </body>
