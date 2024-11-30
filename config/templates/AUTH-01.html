@@ -14,11 +14,6 @@
     </div>
     <div class="login-container">
         <div class="title">로그인</div>
-        {% if messages %}
-            {% for message in messages %}
-                alert("{{ message|escapejs }}");
-            {% endfor %}
-        {% endif %}
         <form method="POST" action="/webapp/login/"> 
             {% csrf_token %}
             <input type="text" name="userid" placeholder="아이디" required>
@@ -32,6 +27,15 @@
             <a href="/webapp/signup/">회원가입</a>
         </div>
     </div>
+
+    <div id="message-container" style="display: none;">
+        {% if messages %}
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    </div>
+    
     <script>
         let mode = 1; // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
         
@@ -46,6 +50,15 @@
                 styleSheet.href = '../../static/darkmode.css';
                 logoImg.src = '/static/darkmode.png';
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const messageContainer = document.getElementById('message-container');
+            const messages = messageContainer.querySelectorAll('p');
+
+            messages.forEach(function (msg) {
+                alert(msg.textContent);
+            });
         });
     </script>
 </body>
