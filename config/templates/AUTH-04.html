@@ -49,12 +49,13 @@
         }
     });
     </script>
-         <script>
+     <script>
         {% if messages %}
             {% for message in messages %}
                 alert("{{ message|escapejs }}");
             {% endfor %}
         {% endif %}
     </script>
+
 </body>
 </html>
