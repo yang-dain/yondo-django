@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>설정 페이지</title>
-    <link rel="stylesheet" href="../../static/styles2-light.css">
+    <link rel="stylesheet" href="/static/styles2-light.css">
     
     <style>
         * {
@@ -59,7 +59,7 @@
                 font-size: 18px;
             }
 
-            .header {
+            .header1 {
                 font-size: 28px;
                 padding: 25px;
             }
@@ -98,7 +98,7 @@
     <div class="divider"></div>
 
     <div class="container">
-        <div class="header">설정</div>
+        <div class="header1">설정</div>
             
         <div class="profile">
             <img src="/static/gray_logo.png" alt="">
@@ -119,15 +119,11 @@
     </div>
 
     <script>
-        const userName = "{{ user_name }}";
-        const daysElapsed = "{{ days_elapsed }}";
-        const completedSchedules = "{{ completed_schedules }}";
-        const remainingSchedules = "{{ remaining_schedules }}";
-
-        document.getElementById("userName").textContent = userName;
-        document.getElementById("daysElapsed").textContent = daysElapsed;
-        document.getElementById("completedSchedules").textContent = completedSchedules;
-        document.getElementById("remainingSchedules").textContent = remainingSchedules;
+        // 사용자 정보와 일정을 동적으로 추가
+        document.getElementById("userName").textContent = "홍길동"; // 실제 사용자 이름으로 변경
+        document.getElementById("daysElapsed").textContent = "30"; // 실제 날짜로 변경
+        document.getElementById("completedSchedules").textContent = "20"; // 완료한 일정 개수
+        document.getElementById("remainingSchedules").textContent = "5"; // 남은 일정 개수
     </script>
 </body>
 </html>
