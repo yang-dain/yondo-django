@@ -1,0 +1,114 @@
+/* Reset CSS */
+* {
+    box-sizing: border-box;
+}
+
+
+
+/* Logo Container */
+.logo-container {
+    background-color: #f6f3ef;
+    border: 2px solid #f6f3ef;
+    border-bottom-right-radius: 8px;
+    padding: 12px;
+}
+
+.logo img {
+    height: auto;
+    width: 70px; /* Logo size */
+}
+
+/* Main Container */
+
+
+/* Header */
+.header {
+    background-color: #2e5743;
+    color: #f6f3ef;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* Profile */
+.profile {
+    background-color: #c9e4fc;
+    color: #333;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
+    font-size: 18px;
+}
+
+/* Information */
+.info {
+    margin-top: 20px;
+    color: #333;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Button */
+.button {
+    width: 100%;
+    margin-top: 30px;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #c0d9e6;
+}
+
+/* Logout Button */
+.logout {
+    width: 120px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #000;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (min-width: 1024px) {
+    .container {
+        width: 80%;
+        max-width: 900px;
+        padding: 40px;
+    }
+
+    .profile {
+        width: 200px;
+        height: 200px;
+        font-size: 18px;
+    }
+
+    .header {
+        font-size: 28px;
+        padding: 25px;
+    }
+
+    .info {
+        font-size: 18px;
+    }
+
+    .button {
+        font-size: 18px;
+        padding: 15px;
+    }
+
+    .logout {
+        width: 140px;
+        height: 50px;
+        font-size: 16px;
+    }
+
+    .logo img {
+        width: 90px; /* Larger logo for larger screens */
+    }
+}
