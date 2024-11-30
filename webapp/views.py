@@ -97,6 +97,7 @@ def logout(request):
         del request.session['user_id']
         del request.session['is_logged_in']
         messages.success(request, '로그아웃 되었습니다.')
+        return redirect('webapp:main')
     except KeyError:
         pass
     return redirect('webapp:main')
@@ -155,6 +156,7 @@ def find_id(request):
 
             # 성공 메시지
             messages.success(request, f"{name}님의 아이디는 {user_id}입니다.")
+            return  redirect('webapp:login')
 
             # 아이디를 알림 팝업으로 표시하도록 메시지 전달
             return render(request, 'AUTH-01.html')
@@ -162,7 +164,7 @@ def find_id(request):
         except Custom_user.DoesNotExist:
             # 이름이나 이메일이 일치하지 않으면 오류 메시지
             messages.error(request, '입력한 정보와 일치하는 아이디가 없습니다.')
-            return render(request, 'AUTH-03.html')
+            return render(request, 'webapp:find_id')
 
     return render(request, 'AUTH-03.html')
 
