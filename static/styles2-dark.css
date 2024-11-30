@@ -99,7 +99,18 @@ body {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 20px;
+}
 
+.header1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #f6f3ef;
+    background-color: #2e5743;
+    background-color: #2e5743;
+    color: #f6f3ef;
+    padding: 20px;
+    border-radius: 8px;
 }
 
 .profile {
@@ -160,15 +171,25 @@ th {
     gap: 20px;
 }
 
+
 .button {
-    background-color: #398428;
-    color: #f6f3ef;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    flex: 1;
+    background-color: #398428;
+    color: #f6f3ef;
+}
+
+button1 {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #398428;
+    color: #f6f3ef;
+    font-size: 16px;
 }
 
 .button:hover {
