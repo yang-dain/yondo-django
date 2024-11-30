@@ -90,7 +90,7 @@ def login(request):
             # 아이디가 존재하지 않는 경우
             messages.error(request, '아이디 또는 비밀번호가 일치하지 않습니다.')
 
-    return render(request, 'AUTH-01-light.html')
+    return render(request, 'AUTH-01.html')
 
 def logout(request):
     try:
@@ -164,7 +164,7 @@ def find_id(request):
             messages.error(request, '입력한 정보와 일치하는 아이디가 없습니다.')
             return render(request, 'AUTH-03.html')
 
-    return render(request, 'AUTH-03.html')
+    return render(request, 'AUTH-03-light.html')
 
 def find_pw(request):
     if request.method == "POST":
@@ -325,7 +325,6 @@ def post(request): #일정 추가
         event["type"] = "ended"
         event.pop("memo", None)
 
-
     school_events = school_event_list()
     for event in school_events["school_events"]:
         event["title"] = event.pop("name")
@@ -341,6 +340,7 @@ def post(request): #일정 추가
             return redirect('webapp:post')
         else:
             messages.error(request, '유효하지 않은 데이터입니다.')
+            return redirect('webapp:post')
     else:
         form = PostForm()
 
@@ -442,4 +442,4 @@ def edit(request, event_id=None):  # 일정 변경/삭제
 
 
 def ui_list(request): #내 일정 관리
-    return render(request, 'SET-02-light.html')
+    return render(request, 'SET-02.html')

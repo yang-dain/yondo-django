@@ -14,10 +14,11 @@ urlpatterns = [
     path('event/', views.todo_view, name='todo_view'), #일정 목록
     path('event/create/', views.post, name='post'), #일정 추가
     path('event/edit/', views.edit, name='edit'),  # 일정 수정/삭제
+    path('mypage/account/', views.account, name='account'),  # ui 설정
     path('event/ui/', views.ui_list, name='ui_list'),  # ui 설정
     path('find_id/', views.find_id, name='find_id'), #아이디 찾기
     path('find_pw/', views.find_pw, name='find_pw'), #비밀번호 찾기
     path('reset_pw/', views.reset_pw, name='reset_pw'), #비밀번호 변경
-    path('withdraw/', views.del_account, name='del_account'), #회원 탈퇴
+    path('del_account/', views.del_account, name='del_account'), #회원 탈퇴
 ]
 
