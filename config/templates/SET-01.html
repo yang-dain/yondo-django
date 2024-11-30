@@ -44,7 +44,10 @@
 
         <div class="button-container">
             <a href="/webapp/reset_pw/<str:userid>" class="button">비밀번호 변경</a>
-            <a href="withdraw-light.html" class="button">회원 탈퇴</a>
+            <form method="POST" action="/webapp/del_account/">
+                {% csrf_token %}
+                <button type="submit" class="button">회원 탈퇴</button>
+            </form>
         </div>
     </div>
 </body>
