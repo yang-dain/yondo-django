@@ -180,7 +180,10 @@
 
         <div class="button-container">
             <button class="button">비밀번호 변경</button>
-            <button class="button">회원 탈퇴</button>
+            <form method="POST" action="/webapp/del_account/">
+                {% csrf_token %}
+                <button type="submit" class="button">회원 탈퇴</button>
+            </form>
         </div>
     </div>
 </body>
