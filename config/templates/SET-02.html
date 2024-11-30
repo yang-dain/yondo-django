@@ -36,37 +36,53 @@
             <tr>
                 <th>알림 종류</th>
                 <th>설정</th>
-            </tr>
-            <tr>
-                <td>학사 일정</td>
-                <td><button1 onclick="toggleAlert(this)">켜기</button1></td>
-            </tr>
-            <tr>
-                <td>종료된 일정</td>
-                <td><button1 onclick="toggleAlert(this)">켜기</button1></td>
-            </tr>
-            <tr>
+                    <tr>
+                        <td>학사 일정</td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="school_events">
+                                <button type="submit">
+                                    {% if hide_school_events %}끄기{% else %}켜기{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>종료된 일정</td>
+                        <td>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="type" value="end_events">
+                                <button type="submit">
+                                    {% if hide_end_events %}끄기{% else %}켜기{% endif %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+
                 <td>다크모드</td>
                 <td><button1 onclick="toggleAlert(this)">켜기</button1></td>
             </tr>
         </table>
-        <button1 style="margin-top: 20px;" onclick="saveSettings()">확인</button1>
     </div>
 
     <script>
         // 알림 켜기/끄기 토글
         function toggleAlert(button) {
-            if (button.innerText === "켜기") {
-                button.innerText = "끄기";
-            } else {
-                button.innerText = "켜기";
-            }
+            const type = button.getAttribute('data-type'); // 버튼의 타입 (school_events, end_events)
+            const currentText = button.innerText;
+            const newState = currentText === "켜기" ? "끄기" : "켜기";
+
+            // 버튼 상태 변경
+            button.innerText = newState;
+
+            // 상태 변경을 서버로 전송
+            const form = button.closest('form');
+            form.submit();
         }
 
-        // 설정 저장
-        function saveSettings() {
-            alert("설정이 저장되었습니다.");
-        }
     </script>
 
 </body>

@@ -59,10 +59,14 @@
     <script>
         // 현재 날짜 설정
         let currentDate = new Date();
-
-        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
-        let hideSchoolEvents = 0;
         let hideEvents = 0;
+        // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
+        // 서버에서 전달받은 데이터로 상태 초기화
+        let hideSchoolEvents = {{ hide_school_events|yesno:"1,0" }};
+        let hideEndEvents = {{ hide_end_events|yesno:"1,0" }};
+
+        console.log("Hide School Events:", hideSchoolEvents);
+        console.log("Hide End Events:", hideEndEvents);
         // 로그인 여부 설정 (0: 로그아웃 상태, 1: 로그인 상태)
         let isLoggedIn = 1;
 
@@ -231,9 +235,9 @@
             
             // 활성화된 일정만 필터링 (학사일정과 진행중인 일정만)
             const activeEvents = [
-                ...(hideSchoolEvents ? [] : schoolEvents),
-                ...(hideEvents ? [] : events),
-                ...endEvents // 종료된 일정 추가
+            ...(hideSchoolEvents ? [] : schoolEvents),
+            ...(hideEvents ? [] : events),
+            ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
             ].sort((a, b) => {
 
                 if (a.type !== b.type) {
@@ -313,7 +317,7 @@
         const currentMonthEvents = [
             ...(hideSchoolEvents ? [] : schoolEvents),
             ...(hideEvents ? [] : events),
-            ...endEvents // 종료된 일정 추가
+            ...(hideEndEvents ? [] : endEvents) // 종료된 일정 추가
         ].sort((a, b) => {
             return new Date(a.end_date) - new Date(b.end_date);
         }).filter(event => {

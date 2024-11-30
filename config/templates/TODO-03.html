@@ -173,9 +173,12 @@
 
         let currentDate = new Date();
         // 일정 표시 여부 설정 (0: 표시, 1: 숨기기)
-        let hideSchoolEvents = 0;
         let hideEvents = 0;
-        let hideEndEvents = 0;
+                // 서버에서 전달받은 데이터로 상태 초기화
+        let hideSchoolEvents = {{ hide_school_events|yesno:"1,0" }};
+        let hideEndEvents = {{ hide_end_events|yesno:"1,0" }};
+                console.log("Hide School Events:", hideSchoolEvents);
+        console.log("Hide End Events:", hideEndEvents);
 
         function safeParseJSON(elementId, propertyName) {
             const jsonContent = document.getElementById(elementId)?.textContent;

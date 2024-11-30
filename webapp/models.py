@@ -12,6 +12,8 @@ class Custom_user(models.Model):
     pw_ans = models.CharField(max_length=10, blank=False, null=False)
     name = models.CharField(max_length=10, blank=False, null=False)
     join_date = models.DateField(auto_now_add=True)
+    hide_school_events = models.BooleanField(default=False)
+    hide_end_events = models.BooleanField(default=False)
 
 class Event(models.Model):
     user = models.ForeignKey(Custom_user, on_delete=models.CASCADE)

@@ -36,6 +36,8 @@ def main(request):
         user_id = request.session.get('user_id')
         if user_id:
             custom_user = get_object_or_404(Custom_user, id=user_id)
+            hide_school_events = custom_user.hide_school_events
+            hide_end_events = custom_user.hide_end_events
             events_data = event_list(custom_user)
             for event in events_data["current_events"]:
                 event["content"] = event.pop("name")
@@ -50,13 +52,17 @@ def main(request):
             current_events = json.dumps(events_data['current_events'])
             ended_events = json.dumps(events_data['ended_events'])
         else:
+            hide_school_events = False
+            hide_end_events = False
             current_events = json.dumps([])  # 비로그인 사용자의 경우 빈 리스트로 처리
             ended_events = json.dumps([])
 
         return render(request, 'DASH-01.html', {
             'school_events': json.dumps(school_events),
             'current_events' : current_events,
-            'ended_events' : ended_events, 
+            'ended_events' : ended_events,
+            'hide_school_events': hide_school_events,
+            'hide_end_events': hide_end_events,
             'is_logged_in': request.session.get('is_logged_in', 0)
         })
 
@@ -314,6 +320,8 @@ def post(request): #일정 추가
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    hide_school_events = custom_user.hide_school_events
+    hide_end_events = custom_user.hide_end_events
     events_data = event_list(custom_user)
     for event in events_data["current_events"]:
         event["title"] = event.pop("name")
@@ -345,6 +353,8 @@ def post(request): #일정 추가
         form = PostForm()
 
     context = {'form': form, 'user_id': user_id,
+               'hide_school_events': hide_school_events,
+               'hide_end_events': hide_end_events,
                'school_events': json.dumps(school_events),
             'current_events' : json.dumps(events_data['current_events']),
             'ended_events' : json.dumps(events_data['ended_events']),}
@@ -361,6 +371,8 @@ def edit(request, event_id=None):  # 일정 변경/삭제
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    hide_school_events = custom_user.hide_school_events
+    hide_end_events = custom_user.hide_end_events
     events_data = event_list(custom_user)
 
     for event in events_data["current_events"]:
@@ -395,6 +407,8 @@ def edit(request, event_id=None):  # 일정 변경/삭제
         context = {
             'form': form,
             'user_id': user_id,
+            'hide_school_events': hide_school_events,
+            'hide_end_events': hide_end_events,
             'school_events': json.dumps(school_events),
             'current_events': json.dumps(events_data['current_events']),
             'ended_events': json.dumps(events_data['ended_events']),
@@ -433,6 +447,8 @@ def edit(request, event_id=None):  # 일정 변경/삭제
     context = {
         'form': form,
         'user_id': user_id,
+        'hide_school_events': hide_school_events,
+        'hide_end_events': hide_end_events,
         'school_events': json.dumps(school_events),
         'current_events': json.dumps(events_data['current_events']),
         'ended_events': json.dumps(events_data['ended_events']),
@@ -441,5 +457,25 @@ def edit(request, event_id=None):  # 일정 변경/삭제
 
 
 
-def ui_list(request): #내 일정 관리
-    return render(request, 'SET-02.html')
+def ui_list(request): #ui 관리
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('webapp:login')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+
+    if request.method == "POST":
+        # 버튼의 타입에 따라 상태 변경
+        toggle_type = request.POST.get('type')  # "school_events" 또는 "end_events"
+        if toggle_type == "school_events":
+            custom_user.hide_school_events = not custom_user.hide_school_events
+        elif toggle_type == "end_events":
+            custom_user.hide_end_events = not custom_user.hide_end_events
+        custom_user.save()
+
+    # 사용자 설정 상태 전달
+    context = {
+        "hide_school_events": custom_user.hide_school_events,
+        "hide_end_events": custom_user.hide_end_events,
+    }
+    return render(request, "SET-02.html", context)

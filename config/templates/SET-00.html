@@ -106,7 +106,7 @@
 
         <div class="info">
             <span id="userName">이름</span> 님<br>
-            시작한 지 <span id="daysElapsed">( )</span>일 되셨군요!<br>
+            오늘은 연DO를 시작한 지 <span id="daysElapsed">( )</span>일째가 되는 날입니다!<br>
             <span id="completedSchedules">( )</span>개의 일정을 완료하셨군요!<br>
             해야 하는 <span id="remainingSchedules">( )</span>개의 일정이 있군요!
         </div>
@@ -118,16 +118,20 @@
         
     </div>
 
-    <script>
-        const userName = "{{ user_name }}";
-        const daysElapsed = "{{ days_elapsed }}";
-        const completedSchedules = "{{ completed_schedules }}";
-        const remainingSchedules = "{{ remaining_schedules }}";
+<script>
+    const userName = "{{ user_name }}";
+    const daysElapsed = "{{ days_elapsed }}";
+    const completedSchedules = "{{ completed_schedules }}";
+    const remainingSchedules = "{{ remaining_schedules }}";
 
-        document.getElementById("userName").textContent = userName;
-        document.getElementById("daysElapsed").textContent = daysElapsed;
-        document.getElementById("completedSchedules").textContent = completedSchedules;
-        document.getElementById("remainingSchedules").textContent = remainingSchedules;
-    </script>
+    // daysElapsed를 숫자로 변환하고 +1
+    const updatedDaysElapsed = parseInt(daysElapsed, 10) + 1;
+
+    document.getElementById("userName").textContent = userName;
+    document.getElementById("daysElapsed").textContent = updatedDaysElapsed;
+    document.getElementById("completedSchedules").textContent = completedSchedules;
+    document.getElementById("remainingSchedules").textContent = remainingSchedules;
+</script>
+
 </body>
 </html>
