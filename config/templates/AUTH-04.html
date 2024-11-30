@@ -17,11 +17,6 @@
     </div>
     <div class="find-container">
         <div class="title">비밀번호 찾기</div>
-        {% if messages %}
-            {% for message in messages %}
-                alert("{{ message|escapejs }}");
-            {% endfor %}
-        {% endif %}
         <form method="POST" action="/webapp/find_pw/">
             {% csrf_token %}
             <input type="text" name="userid" placeholder="아이디" required>
@@ -53,6 +48,14 @@
             logoImg.src = '/static/darkmode.png';
         }
     });
+    </script>
+
+    <script>
+    {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");
+            {% endfor %}
+        {% endif %}
     </script>
 </body>
 </html>
