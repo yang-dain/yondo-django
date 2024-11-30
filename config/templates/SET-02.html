@@ -6,11 +6,18 @@
     <link rel="stylesheet" href="/static/styles2-light.css">
     <title>UI 설정</title>
     <style>
-        table {
+        .table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             margin-bottom: 20px;
+        }
+        .logout{
+            right: 150px;
+        }
+        .button-container {
+            margin-top: 10px;
+            text-align: center; /* 가운데 정렬 */
         }
     </style>
 </head>
@@ -66,6 +73,9 @@
                 <td><button1 onclick="toggleAlert(this)">켜기</button1></td>
             </tr>
         </table>
+        <div class="button-container">
+            <a href="/webapp/mypage/event" class="button">목록으로</a>
+        </div>
     </div>
 
     <script>
