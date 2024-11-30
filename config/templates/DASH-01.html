@@ -96,6 +96,11 @@
             styleSheet.href = '/static/styles1-dark.css';
             logoImg.src = '/static/darkmode.png';
         }
+        {% if messages %}
+            {% for message in messages %}
+                alert("{{ message|escapejs }}");  <!-- 메시지를 alert로 표시 -->
+            {% endfor %}
+        {% endif %}
     });
 
 /*기존 코드
