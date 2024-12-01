@@ -126,9 +126,9 @@
         let hideEvents = 0;
 
         // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
-        let mode = 1;
 
         document.addEventListener('DOMContentLoaded', function() {
+        const mode = {{ mode }};
         const styleSheet = document.getElementById('theme-style');
         const logoImg = document.querySelector('.logo img');
         

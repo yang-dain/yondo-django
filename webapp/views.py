@@ -269,6 +269,9 @@ def todo_view(request): #일정 목록
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
+    print(f"mode: {mode}")
 
     event_data = school_event_list()
     events_data = event_list(custom_user)
@@ -278,6 +281,7 @@ def todo_view(request): #일정 목록
         'school_events': json.dumps(event_data['school_events']), # 학사일정
         'current_events': json.dumps(events_data['current_events']),  # 예정된 일정
         'ended_events': json.dumps(events_data['ended_events']),  # 종료된 일정
+        'mode': mode,
     })
 
 def mypage(request): #마이페이지
@@ -301,7 +305,8 @@ def mypage(request): #마이페이지
     completed_schedules = len(ended_events)
     remaining_schedules = len(current_events)
 
-    mode = request.session.get('mode', 1)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
     print(f"mode: {mode}")
 
     # 템플릿에 데이터 전달
@@ -320,7 +325,8 @@ def account(request): # 내 정보 관리
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
-    mode = request.session.get('mode', 1)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
     print(f"mode: {mode}")
 
     return render(request, 'SET-01.html', {
@@ -336,7 +342,8 @@ def schedule_list(request): #내 일정 관리
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
-    mode = request.session.get('mode', 1)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
     print(f"mode: {mode}")
 
     return render(request, 'SET-03.html', {
@@ -350,6 +357,8 @@ def post(request): #일정 추가
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
     hide_school_events = custom_user.hide_school_events
     hide_end_events = custom_user.hide_end_events
     events_data = event_list(custom_user)
@@ -387,7 +396,8 @@ def post(request): #일정 추가
                'hide_end_events': hide_end_events,
                'school_events': json.dumps(school_events),
             'current_events' : json.dumps(events_data['current_events']),
-            'ended_events' : json.dumps(events_data['ended_events']),}
+            'ended_events' : json.dumps(events_data['ended_events']),
+               'mode': mode, }
 
 
     return render(request, 'TODO-02.html', context)
@@ -401,6 +411,8 @@ def edit(request, event_id=None):  # 일정 변경/삭제
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+    request.session['mode'] = mode
     hide_school_events = custom_user.hide_school_events
     hide_end_events = custom_user.hide_end_events
     events_data = event_list(custom_user)
@@ -442,6 +454,7 @@ def edit(request, event_id=None):  # 일정 변경/삭제
             'school_events': json.dumps(school_events),
             'current_events': json.dumps(events_data['current_events']),
             'ended_events': json.dumps(events_data['ended_events']),
+            'mode': mode,
         }
         return render(request, 'TODO-03.html', context)
 
@@ -482,6 +495,7 @@ def edit(request, event_id=None):  # 일정 변경/삭제
         'school_events': json.dumps(school_events),
         'current_events': json.dumps(events_data['current_events']),
         'ended_events': json.dumps(events_data['ended_events']),
+        'mode': mode,
     }
     return render(request, 'TODO-03.html', context)
 
