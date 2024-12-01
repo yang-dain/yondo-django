@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../static/styles2-light.css">
+    <link id="theme-style" rel="stylesheet" href="/static/styles2-light.css">
     <title>내 정보 관리</title>
     <style>
-        
 
-        
+
+
 
     </style>
 </head>
@@ -28,17 +28,17 @@
         <div class="header">내 정보 관리</div>
             
         <table class="table">
-            <tr>
+             <tr>
                 <td><strong>이름</strong></td>
-                <td>홍길동</td>
+                <td>{{ user.name }}</td>
             </tr>
             <tr>
                 <td><strong>아이디</strong></td>
-                <td>user123</td>
+                <td>{{ user.id }}</td>
             </tr>
             <tr>
                 <td><strong>이메일</strong></td>
-                <td>example@example.com</td>
+                <td>{{ user.user_email }}</td>
             </tr>
         </table>
 
@@ -50,5 +50,21 @@
             </form>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mode = {{ mode }}; // 템플릿에서 mode 값을 가져옵니다.
+            const styleSheet = document.getElementById('theme-style');
+
+            // mode 값에 따라 스타일시트 변경
+            if (styleSheet) {
+                if (mode === 1) {
+                    styleSheet.href = '/static/styles2-light.css';
+                } else {
+                    styleSheet.href = '/static/styles2-dark.css';
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>
