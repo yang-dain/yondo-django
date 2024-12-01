@@ -509,6 +509,6 @@ def ui_list(request): #ui 관리
     context = {
         "hide_school_events": custom_user.hide_school_events,
         "hide_end_events": custom_user.hide_end_events,
-        "mode": custom_user.mode,
+        "mode": int(custom_user.mode),
     }
     return render(request, "SET-02.html", context)
