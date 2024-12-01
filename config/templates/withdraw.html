@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>탈퇴 완료 페이지</title>
+    <link id="theme-style" rel="stylesheet" href="/static/draw-light.css">
+</head>
+<body>
+
+    <!-- 상단 헤더 -->
+    <div class="header-bar">
+        <div class="logo-container">
+            <a href="/webapp/main/" class="logo">
+                <img src="/static/lightmode.png" alt="로고">
+            </a>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- 탈퇴 완료 메시지 -->
+    <div class="container">
+        <div class="header">탈퇴가 완료되었습니다</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mode = {{ mode }}; // 템플릿에서 mode 값을 가져옵니다.
+            const styleSheet = document.getElementById('theme-style');
+
+            // mode 값에 따라 스타일시트 변경
+            if (styleSheet) {
+                if (mode === 1) {
+                    styleSheet.href = '/static/draw-light.css';
+                } else {
+                    styleSheet.href = '/static/draw-dark.css';
+                }
+            }
+        });
+        // 3초 후에 메인 페이지로 리디렉션
+        setTimeout(function() {
+            window.location.href = "/webapp/main/"; // 메인 페이지 URL로 이동
+        }, 3000);  // 3000ms = 3초
+    </script>
+
+</body>
+</html>
