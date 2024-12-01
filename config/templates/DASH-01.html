@@ -4,9 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>일정 관리 페이지</title>
-    <link id="theme-style" rel="stylesheet" href="">
+    <link id="theme-style" rel="stylesheet" href="/static/styles1-light.css">
 
-    <style></style>
+    <style>
+        .logo img {
+            width: 150px;  /* 원하는 크기로 설정 */
+            height: auto;  /* 비율에 맞게 높이 자동 조정 */
+        }
+    </style>
 </head>
 <body>
     <div class="header-bar" data-is-logged-in="{{ is_logged_in }}">
@@ -29,13 +34,15 @@
                     <button class="next-month">▶</button>
                 </div>
                 <table>
-                    <th>Sun</th>
-                    <th>Mon</th>
-                    <th>Tue</th>
-                    <th>Wed</th>
-                    <th>Thu</th>
-                    <th>Fri</th>
-                    <th>Sat</th>
+                    <tr>
+                        <th>Sun</th>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th>Sat</th>
+                    </tr>
                 </table>
             </div>
             <div class="schedule-list" id="schedule-list">
@@ -70,9 +77,6 @@
         // 로그인 여부 설정 (0: 로그아웃 상태, 1: 로그인 상태)
         let isLoggedIn = 1;
 
-        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
-        let mode = 1;
-
         document.addEventListener('DOMContentLoaded', function() {
             const isLoggedIn = document.querySelector('.header-bar').getAttribute('data-is-logged-in') === '1';
             const buttonContainer = document.getElementById('auth-buttons');
@@ -88,24 +92,26 @@
                     <a href="/webapp/login/" class="button login">로그인</a>
                     <a href="/webapp/signup/" class="button signup">회원가입</a>
                 `;
-            };
+            }
 
-        const styleSheet = document.getElementById('theme-style');
-        const logoImg = document.querySelector('.logo img');
-        
-        if (mode === 1) {
-            styleSheet.href = '/static/styles1-light.css';
-            logoImg.src = '/static/lightmode.png';
-        } else {
-            styleSheet.href = '/static/styles1-dark.css';
-            logoImg.src = '/static/darkmode.png';
-        }
+            const mode = {{ mode }};
+            const styleSheet = document.getElementById('theme-style');
+            const logoImg = document.querySelector('.logo img');
+
+            // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+            if (mode === 1) {
+                styleSheet.href = '/static/styles1-light.css';
+                logoImg.src = '/static/lightmode.png';
+            } else {
+                styleSheet.href = '/static/styles1-dark.css';
+                logoImg.src = '/static/darkmode.png';
+            }
+        });
         {% if messages %}
             {% for message in messages %}
                 alert("{{ message|escapejs }}");  <!-- 메시지를 alert로 표시 -->
             {% endfor %}
         {% endif %}
-    });
 
 /*기존 코드
         // 버튼 컨테이너 업데이트 함수
