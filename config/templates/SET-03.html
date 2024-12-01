@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/styles2-light.css">
+    <link id="theme-style" rel="stylesheet" href="/static/styles2-light.css">
     <title>UI 설정</title>
     
     <style>
@@ -41,5 +41,20 @@
         <a href="/webapp/event/edit/"><button class="button">일정 변경&삭제</button></a>
         <a href="/webapp/event/ui"><button class="button">일정 UI 설정</button></a>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mode = {{ mode }}; // 템플릿에서 mode 값을 가져옵니다.
+            const styleSheet = document.getElementById('theme-style');
+
+            // mode 값에 따라 스타일시트 변경
+            if (styleSheet) {
+                if (mode === 1) {
+                    styleSheet.href = '/static/styles2-light.css';
+                } else {
+                    styleSheet.href = '/static/styles2-dark.css';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
