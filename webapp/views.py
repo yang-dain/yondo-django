@@ -117,7 +117,6 @@ def logout(request):
     return redirect('webapp:main')
 
 def signup(request):
-    # AUTH-02-light.html에서 입력값 받아옴
     if request.method == "POST":
         name = request.POST.get('name')
         user_id = request.POST.get('id')
