@@ -33,9 +33,12 @@ def main(request):
             event["content"] = event.pop("name")
             event["type"] = "school"
 
-        user_id = request.session.get('user_id')
         if user_id:
             custom_user = get_object_or_404(Custom_user, id=user_id)
+            mode = int(custom_user.mode)  # 0: 다크모드, 1: 라이트모드
+            request.session['mode'] = mode
+            print(f"mode: {mode}")
+
             hide_school_events = custom_user.hide_school_events
             hide_end_events = custom_user.hide_end_events
             events_data = event_list(custom_user)
@@ -51,7 +54,10 @@ def main(request):
 
             current_events = json.dumps(events_data['current_events'])
             ended_events = json.dumps(events_data['ended_events'])
-        else:
+        else: #비로그인 시
+            mode = 1  # 라이트모드 기본값
+            request.session['mode'] = mode
+
             hide_school_events = False
             hide_end_events = False
             current_events = json.dumps([])  # 비로그인 사용자의 경우 빈 리스트로 처리
@@ -63,7 +69,8 @@ def main(request):
             'ended_events' : ended_events,
             'hide_school_events': hide_school_events,
             'hide_end_events': hide_end_events,
-            'is_logged_in': request.session.get('is_logged_in', 0)
+            'is_logged_in': request.session.get('is_logged_in', 0),
+            'mode': mode
         })
 
     except KeyError as e:
@@ -294,12 +301,16 @@ def mypage(request): #마이페이지
     completed_schedules = len(ended_events)
     remaining_schedules = len(current_events)
 
+    mode = request.session.get('mode', 1)
+    print(f"mode: {mode}")
+
     # 템플릿에 데이터 전달
     return render(request, 'SET-00.html', {
         'user_name': user_name,
         'days_elapsed': days_elapsed,
         'completed_schedules': completed_schedules,
         'remaining_schedules': remaining_schedules,
+        'mode': mode,
     })
 
 def account(request): # 내 정보 관리
@@ -309,12 +320,28 @@ def account(request): # 내 정보 관리
         return redirect('webapp:login')
 
     custom_user = get_object_or_404(Custom_user, id=user_id)
+    mode = request.session.get('mode', 1)
+    print(f"mode: {mode}")
 
-    return render(request, 'SET-01-light.html', {'user': custom_user})  # user 데이터 전달
+    return render(request, 'SET-01.html', {
+        'user': custom_user,
+        'mode': mode,
+    })  # user 데이터 전달
 
 
 def schedule_list(request): #내 일정 관리
-    return render(request, 'SET-03.html')
+    user_id = request.session.get('user_id')
+
+    if not user_id:
+        return redirect('webapp:login')
+
+    custom_user = get_object_or_404(Custom_user, id=user_id)
+    mode = request.session.get('mode', 1)
+    print(f"mode: {mode}")
+
+    return render(request, 'SET-03.html', {
+        'mode': mode,
+    })  # user 데이터 전달
 
 def post(request): #일정 추가
     user_id = request.session.get('user_id')
