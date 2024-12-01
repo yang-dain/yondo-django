@@ -517,6 +517,7 @@ def ui_list(request): #ui 관리
             custom_user.hide_end_events = not custom_user.hide_end_events
         elif toggle_type == "dark_mode": # True: 다크모드, False: 라이트모드
             custom_user.mode = 1 if custom_user.mode == 0 else 0
+            request.session['mode'] = custom_user.mode
         custom_user.save()
 
     # 사용자 설정 상태 전달
