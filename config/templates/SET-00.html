@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>설정 페이지</title>
-    <link rel="stylesheet" href="/static/styles2-light.css">
-    
+    <link id="theme-style" rel="stylesheet" href="/static/styles2-light.css">
+
     <style>
-        * {
+* {
             box-sizing: border-box;
         }
 
@@ -16,7 +16,7 @@
         }
 
         .logo-container a img {
-            width: 100%; 
+            width: 100%;
             height: 100%;
             object-fit: cover;
         }
@@ -27,18 +27,18 @@
         }
 
         .logo-container a:hover img {
-            opacity: 0.8; 
-            transform: scale(1.05); 
+            opacity: 0.8;
+            transform: scale(1.05);
         }
-    
+
         .logout {
-            position: fixed; 
-            z-index: 9999; 
+            position: fixed;
+            z-index: 9999;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         @media (min-width: 768px) {
             .container {
                 width: 90%;
@@ -119,18 +119,33 @@
     </div>
 
 <script>
-    const userName = "{{ user_name }}";
-    const daysElapsed = "{{ days_elapsed }}";
-    const completedSchedules = "{{ completed_schedules }}";
-    const remainingSchedules = "{{ remaining_schedules }}";
+    document.addEventListener('DOMContentLoaded', function () {
+        const userName = "{{ user_name }}";
+        const daysElapsed = "{{ days_elapsed }}";
+        const completedSchedules = "{{ completed_schedules }}";
+        const remainingSchedules = "{{ remaining_schedules }}";
 
-    // daysElapsed를 숫자로 변환하고 +1
-    const updatedDaysElapsed = parseInt(daysElapsed, 10) + 1;
+        // daysElapsed를 숫자로 변환하고 +1
+        const updatedDaysElapsed = parseInt(daysElapsed, 10) + 1;
 
-    document.getElementById("userName").textContent = userName;
-    document.getElementById("daysElapsed").textContent = updatedDaysElapsed;
-    document.getElementById("completedSchedules").textContent = completedSchedules;
-    document.getElementById("remainingSchedules").textContent = remainingSchedules;
+        document.getElementById("userName").textContent = userName;
+        document.getElementById("daysElapsed").textContent = updatedDaysElapsed;
+        document.getElementById("completedSchedules").textContent = completedSchedules;
+        document.getElementById("remainingSchedules").textContent = remainingSchedules;
+
+        // 모드 설정
+        const mode = {{ mode }};
+        const styleSheet = document.getElementById('theme-style');
+
+        // 라이트모드, 다크모드 설정 (0: 다크모드, 1: 라이트모드)
+        if (styleSheet) {
+            if (mode === 1) {
+                styleSheet.href = '/static/styles2-light.css';
+            } else {
+                styleSheet.href = '/static/styles2-dark.css';
+            }
+        }
+    });
 </script>
 
 </body>
