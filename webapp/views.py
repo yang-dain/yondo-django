@@ -130,12 +130,12 @@ def signup(request):
         #pw 확인
         if pw != pw_confirm:
             messages.error(request, '비밀번호가 일치하지 않습니다.')
-            return render(request, 'AUTH-02-light.html')
+            return render(request, 'AUTH-02.html')
 
         #id 중복 확인
         if Custom_user.objects.filter(id=user_id).exists():
             messages.error(request, '이미 존재하는 아이디입니다.')
-            return render(request, 'AUTH-02-light.html')
+            return render(request, 'AUTH-02.html')
 
         # custom_user 테이블에 저장
         try:
@@ -151,7 +151,7 @@ def signup(request):
             return redirect('webapp:main')
         except Exception as e:
             messages.error(request, f'회원가입 중 오류가 발생했습니다: {e}')
-            return render(request, 'AUTH-02-light.html')
+            return render(request, 'AUTH-02.html')
 
     return render(request, 'AUTH-02.html')
 

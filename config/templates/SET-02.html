@@ -52,7 +52,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="type" value="school_events">
                                     <button type="submit">
-                                        {% if hide_school_events %}끄기{% else %}켜기{% endif %}
+                                        {% if hide_school_events %}off{% else %}on{% endif %}
                                     </button>
                                 </form>
                             </td>
@@ -64,7 +64,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" name="type" value="end_events">
                                     <button type="submit">
-                                        {% if hide_end_events %}끄기{% else %}켜기{% endif %}
+                                        {% if hide_end_events %}off{% else %}on{% endif %}
                                     </button>
                                 </form>
                             </td>
@@ -75,9 +75,8 @@
                             <form method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="type" value="dark_mode">
-                                <input type="hidden" name="mode" value="{{ mode }}">
                                 <button type="submit">
-                                    {% if mode == 0 %} 끄기 {% else %} 켜기 {% endif %}
+                                    {% if mode == 0 %}on{% else %}off{% endif %}
                                 </button>
                             </form>
                         </td>
