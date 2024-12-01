@@ -248,14 +248,14 @@ def del_account(request): #회원 탈퇴
         custom_user = Custom_user.objects.get(id=user_id)
 
         if request.method == "POST":  # POST 요청으로 탈퇴 실행
-            print(custom_user)
-            custom_user.delete() # 사용자 삭제
-            request.session.flush() # 세션 종료 및 로그아웃
+            mode = request.session.get('mode', 1)
+            custom_user.delete()  # 사용자 삭제
+            request.session.flush()  # 세션 종료 및 로그아웃
 
-            return render(request, 'withdraw-light.html')
+            return render(request, 'withdraw.html', {'mode': mode})
 
         # 탈퇴 확인 페이지 렌더링
-        return render(request, 'withdraw-light.html')
+        return render(request, 'withdraw.html', {'mode': mode})
 
     except Custom_user.DoesNotExist:
         messages.error(request, '사용자를 찾을 수 없습니다.')
